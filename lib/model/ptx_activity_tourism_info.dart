@@ -1,7 +1,7 @@
 import 'dart:convert';
 
-import 'package:taiwan_tourism/model/ptx_point_type.dart';
-import 'package:taiwan_tourism/model/ptx_tourism_picture.dart';
+import 'package:taiwantourism/model/ptx_point_type.dart';
+import 'package:taiwantourism/model/ptx_tourism_picture.dart';
 
 class PtxActivityTourismInfo {
   final String? id; // 活動訊息代碼

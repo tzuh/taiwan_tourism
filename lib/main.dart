@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
-import 'package:taiwan_tourism/selection_page.dart';
+import 'package:taiwantourism/selection_page.dart';
 
 Future main() async {
   WidgetsFlutterBinding.ensureInitialized();

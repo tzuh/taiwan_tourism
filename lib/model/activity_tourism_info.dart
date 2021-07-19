@@ -1,5 +1,5 @@
 import 'package:intl/intl.dart';
-import 'package:taiwan_tourism/model/ptx_activity_tourism_info.dart';
+import 'package:taiwantourism/model/ptx_activity_tourism_info.dart';
 
 class ActivityTourismInfo {
   String id; // 活動訊息代碼
