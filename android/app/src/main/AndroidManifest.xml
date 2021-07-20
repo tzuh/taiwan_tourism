@@ -18,7 +18,7 @@
 
     <application
         android:icon="@mipmap/ic_launcher"
-        android:label="觀光臺灣">
+        android:label="旅遊臺灣">
         <activity
             android:name=".MainActivity"
             android:screenOrientation="portrait"
