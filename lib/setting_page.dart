@@ -21,6 +21,7 @@ class _SettingPageState extends State<SettingPage> {
   Widget build(BuildContext context) {
     var screenWidth = MediaQuery.of(context).size.width;
     return Scaffold(
+      backgroundColor: Constants.COLOR_THEME_DARK_WHITE,
       appBar: AppBar(
         automaticallyImplyLeading: false,
         leading: Navigator.canPop(context)

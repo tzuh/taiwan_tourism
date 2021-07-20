@@ -1,5 +1,3 @@
-import 'dart:convert';
-
 import 'package:taiwantourism/model/ptx_point_type.dart';
 import 'package:taiwantourism/model/ptx_tourism_picture.dart';
 
@@ -57,7 +55,7 @@ class PtxActivityTourismInfo {
     this.srcUpdateTime,
     this.updateTime,
   });
-  
+
   factory PtxActivityTourismInfo.fromJson(Map<String, dynamic> json) {
     return PtxActivityTourismInfo(
       id: json['ID'],

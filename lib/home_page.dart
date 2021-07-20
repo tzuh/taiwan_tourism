@@ -138,7 +138,7 @@ class _HomePageState extends State<HomePage> {
                               url: _activityList[index].picture.pictureUrl1,
                               file: File(join(_tempDir.path,
                                   '${_activityList[index].id}_a1.jpg')),
-                              debug: true,
+                              debug: false,
                             )
                           : Image.asset('assets/images/card_bg.jpg').image,
                       fit: BoxFit.cover,

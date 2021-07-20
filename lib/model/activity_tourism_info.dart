@@ -48,7 +48,6 @@ class ActivityTourismInfo {
         /// Get high quality images from https://www.trimt-nsa.gov.tw/ instead of thumbs.
         if (strList.length > 3 &&
             strList[2].compareTo('www.trimt-nsa.gov.tw') == 0) {
-          print('Remove _thumb of ${ptx.id}: ${url.replaceAll('_thumb', '')}');
           return url.replaceAll('_thumb', '');
         }
       }

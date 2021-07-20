@@ -170,7 +170,7 @@ class _ActivityPageState extends State<ActivityPage> {
                               url: widget.activity.picture.pictureUrl1,
                               file: File(join(widget.tempDir.path,
                                   '${widget.activity.id}_a1.jpg')),
-                              debug: true,
+                              debug: false,
                             ),
                           ),
                           Container(
@@ -207,7 +207,7 @@ class _ActivityPageState extends State<ActivityPage> {
                               url: widget.activity.picture.pictureUrl2,
                               file: File(join(widget.tempDir.path,
                                   '${widget.activity.id}_a2.jpg')),
-                              debug: true,
+                              debug: false,
                             ),
                           ),
                           Container(
@@ -244,7 +244,7 @@ class _ActivityPageState extends State<ActivityPage> {
                               url: widget.activity.picture.pictureUrl3,
                               file: File(join(widget.tempDir.path,
                                   '${widget.activity.id}_a3.jpg')),
-                              debug: true,
+                              debug: false,
                             ),
                           ),
                           Container(
