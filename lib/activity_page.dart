@@ -29,6 +29,18 @@ class _ActivityPageState extends State<ActivityPage> {
           elevation: 0,
           actions: <Widget>[],
           centerTitle: true,
+          automaticallyImplyLeading: false,
+          leading: Navigator.canPop(context)
+              ? IconButton(
+            icon: Icon(
+              Icons.arrow_back_ios,
+              color: Constants.COLOR_THEME_WHITE,
+              size: 24,
+            ),
+            tooltip: Constants.STRING_BACK,
+            onPressed: () => Navigator.of(context).pop(),
+          )
+              : null,
           title: Text(
             Constants.STRING_ACTIVITY,
             style: TextStyle(fontSize: 20, color: Constants.COLOR_THEME_WHITE),

@@ -80,13 +80,10 @@ class ActivityTourismInfo {
         picture: new TourismPicture(
           pictureUrl1: fixUrl(ptx.picture!.pictureUrl1?.trim() ?? ''),
           pictureDescription1: ptx.picture!.pictureDescription1?.trim() ?? '',
-          pictureLocalPath1: '',
           pictureUrl2: fixUrl(ptx.picture!.pictureUrl2?.trim() ?? ''),
           pictureDescription2: ptx.picture!.pictureDescription2?.trim() ?? '',
-          pictureLocalPath2: '',
           pictureUrl3: fixUrl(ptx.picture!.pictureUrl3?.trim() ?? ''),
           pictureDescription3: ptx.picture!.pictureDescription3?.trim() ?? '',
-          pictureLocalPath3: '',
         ),
         position: new PointType(
           positionLon: ptx.position!.positionLon ?? 0,
@@ -108,24 +105,18 @@ class ActivityTourismInfo {
 class TourismPicture {
   String pictureUrl1; // 照片連結網址1
   String pictureDescription1; // 照片說明1
-  String pictureLocalPath1;
   String pictureUrl2; // 照片連結網址2
   String pictureDescription2; // 照片說明2
-  String pictureLocalPath2;
   String pictureUrl3; // 照片連結網址3
   String pictureDescription3; // 照片說明3
-  String pictureLocalPath3;
 
   TourismPicture({
     required this.pictureUrl1,
     required this.pictureDescription1,
-    required this.pictureLocalPath1,
     required this.pictureUrl2,
     required this.pictureDescription2,
-    required this.pictureLocalPath2,
     required this.pictureUrl3,
     required this.pictureDescription3,
-    required this.pictureLocalPath3,
   });
 }
 

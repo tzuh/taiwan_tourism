@@ -10,6 +10,7 @@ import 'package:intl/intl.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:taiwantourism/activity_page.dart';
 import 'package:taiwantourism/model/activity_tourism_info.dart';
+import 'package:taiwantourism/setting_page.dart';
 import 'package:taiwantourism/util/network_util.dart';
 import 'constants.dart';
 import 'model/ptx_activity_tourism_info.dart';
@@ -69,14 +70,42 @@ class _HomePageState extends State<HomePage> {
     return Scaffold(
       backgroundColor: Constants.COLOR_THEME_DARK_WHITE,
       appBar: AppBar(
-          elevation: 0,
-          centerTitle: true,
-          title: TextButton(
-              onPressed: () {},
-              child: Text(
-                Constants.CITY_NAMES[widget.currentCity].toString(),
-                style: TextStyle(color: Colors.white, fontSize: 20.0),
-              ))),
+        elevation: 0,
+        centerTitle: true,
+        automaticallyImplyLeading: false,
+        leading: Navigator.canPop(context)
+            ? IconButton(
+                icon: Icon(
+                  Icons.arrow_back_ios,
+                  color: Constants.COLOR_THEME_WHITE,
+                  size: 24,
+                ),
+                tooltip: Constants.STRING_BACK,
+                onPressed: () => Navigator.of(context).pop(),
+              )
+            : null,
+        title: TextButton(
+            onPressed: () {},
+            child: Text(
+              Constants.CITY_NAMES[widget.currentCity].toString(),
+              style:
+                  TextStyle(color: Constants.COLOR_THEME_WHITE, fontSize: 20.0),
+            )),
+        actions: [
+          IconButton(
+            icon: const Icon(
+              Icons.settings,
+              color: Constants.COLOR_THEME_WHITE,
+              size: 24,
+            ),
+            tooltip: Constants.STRING_SETTINGS,
+            onPressed: () {
+              Navigator.push(context,
+                  MaterialPageRoute(builder: (context) => SettingPage()));
+            },
+          )
+        ],
+      ),
       body: ListView.builder(
           padding: const EdgeInsets.symmetric(
               vertical: Constants.DIMEN_PRIMARY_MARGIN / 2),

@@ -76,8 +76,12 @@ class Constants {
       423; // 超過單位時間請求數（50 request/秒）
   static const int HTTP_STATUS_CODE_API_RATE_EXCEEDED = 429; // 超過當日呼叫上限次數
 
-  /// Strings for display
+  /// Strings for displaying
   static const String STRING_ACTIVITY = '活動公告';
+  static const String STRING_SETTINGS = '設定';
+  static const String STRING_BACK = '返回';
+  static const String STRING_APP_VERSION = 'App 版本';
+  static const String STRING_REFERENCES = '資料來源';
   static const String STRING_OFFLINE = '無法連線';
   static const String STRING_CHECK_CONNECTION = '請檢查網路設定';
   static const String STRING_SEVER_ERROR = '伺服器錯誤';

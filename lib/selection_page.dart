@@ -46,7 +46,7 @@ class _SelectionPageState extends State<SelectionPage> {
                       left: screenWidth * 0.1,
                       right: screenWidth * 0.1,
                       top: screenHeight * 0.09,
-                      bottom: screenHeight * 0.09),
+                      bottom: screenHeight * 0.08),
                   child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                       children: [
@@ -157,7 +157,7 @@ class _SelectionPageState extends State<SelectionPage> {
     return OutlinedButton(
         style: ButtonStyle(
           padding: MaterialStateProperty.all<EdgeInsets>(
-              EdgeInsets.only(left: 15, right: 15, top: 5, bottom: 10)),
+              EdgeInsets.only(left: 15, right: 15, top: 5, bottom: 7)),
           shape: MaterialStateProperty.all<RoundedRectangleBorder>(
               RoundedRectangleBorder(borderRadius: BorderRadius.circular(10))),
           side: MaterialStateProperty.all<BorderSide>(

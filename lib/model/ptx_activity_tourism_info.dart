@@ -57,11 +57,7 @@ class PtxActivityTourismInfo {
     this.srcUpdateTime,
     this.updateTime,
   });
-
-  // static List<PtxActivityTourismInfo> modelUserFromJson(String str) =>
-  //     List<PtxActivityTourismInfo>.from(
-  //         json.decode(str).map((s) => PtxActivityTourismInfo.fromJson(s)));
-
+  
   factory PtxActivityTourismInfo.fromJson(Map<String, dynamic> json) {
     return PtxActivityTourismInfo(
       id: json['ID'],
