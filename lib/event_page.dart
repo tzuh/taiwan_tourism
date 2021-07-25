@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:intl/intl.dart';
 import 'package:path/path.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -32,14 +33,14 @@ class _EventPageState extends State<EventPage> {
           automaticallyImplyLeading: false,
           leading: Navigator.canPop(context)
               ? IconButton(
-            icon: Icon(
-              Icons.arrow_back_ios,
-              color: Constants.COLOR_THEME_WHITE,
-              size: 24,
-            ),
-            tooltip: Constants.STRING_BACK,
-            onPressed: () => Navigator.of(context).pop(),
-          )
+                  icon: Icon(
+                    Icons.arrow_back_ios,
+                    color: Constants.COLOR_THEME_WHITE,
+                    size: 24,
+                  ),
+                  tooltip: Constants.STRING_BACK,
+                  onPressed: () => Navigator.of(context).pop(),
+                )
               : null,
           title: Text(
             Constants.STRING_ACTIVITY,
@@ -73,7 +74,7 @@ class _EventPageState extends State<EventPage> {
                         horizontal: Constants.DIMEN_PRIMARY_MARGIN,
                         vertical: Constants.DIMEN_PRIMARY_MARGIN / 2),
                     child: SelectableText(
-                      getDateString(
+                      getEventDateString(
                           widget.event.startTime, widget.event.endTime),
                       style: TextStyle(
                           fontSize: 16,
@@ -136,8 +137,7 @@ class _EventPageState extends State<EventPage> {
                               visible: _hasPhone,
                               child: IconButton(
                                 onPressed: () async {
-                                  await canLaunch(
-                                          'tel:' + widget.event.phone)
+                                  await canLaunch('tel:' + widget.event.phone)
                                       ? await launch(
                                           'tel:' + widget.event.phone)
                                       : throw 'Could not launch ${widget.event.phone}';
@@ -281,13 +281,26 @@ class _EventPageState extends State<EventPage> {
         ));
   }
 
-  String getDateString(DateTime startDate, DateTime endDate) {
-    DateTime localStartDate = startDate.toLocal();
-    DateTime localEndDate = endDate.toLocal();
+  String getEventDateString(DateTime startDateTime, DateTime endDateTime) {
+    var localStartDateTime = startDateTime.toLocal();
+    var localEndDateTime = endDateTime.toLocal();
+    var localStartDate = DateTime(localStartDateTime.year,
+        localStartDateTime.month, localStartDateTime.day);
+    var localEndDate = DateTime(localEndDateTime.toLocal().year,
+        localEndDateTime.toLocal().month, localEndDateTime.toLocal().day);
     if (localStartDate.isAtSameMomentAs(localEndDate)) {
-      return '${localStartDate.year}/${localStartDate.month}/${localStartDate.day}';
+      if (localStartDateTime.hour == 0 &&
+          localStartDateTime.minute == 0 &&
+          localStartDateTime.second == 0 &&
+          localEndDateTime.hour == 23 &&
+          localEndDateTime.minute == 59 &&
+          localEndDateTime.second == 59) {
+        return '${DateFormat('yyyy/M/d').format(localStartDateTime)}';
+      } else {
+        return '${DateFormat('yyyy/M/d HH:mm').format(localStartDateTime)} - ${DateFormat('HH:mm').format(localEndDateTime)}';
+      }
     } else {
-      return '${localStartDate.year}/${localStartDate.month}/${localStartDate.day} - ${localEndDate.year}/${localEndDate.month}/${localEndDate.day}';
+      return '${DateFormat('yyyy/M/d').format(localStartDateTime)} - ${DateFormat('yyyy/M/d').format(localEndDateTime)}';
     }
   }
 }

@@ -61,6 +61,18 @@ class ActivityTourismInfo {
       return phoneNum;
     }
 
+    DateTime rawEndTime =
+        new DateFormat('yyyy-MM-ddTHH:mm:ss').parse(ptx.endTime?.trim() ?? '');
+    DateTime fixedEndTime;
+    if (rawEndTime.hour == 0 &&
+        rawEndTime.minute == 0 &&
+        rawEndTime.millisecond == 0) {
+      fixedEndTime = DateTime(
+          rawEndTime.year, rawEndTime.month, rawEndTime.day, 23, 59, 59);
+    } else {
+      fixedEndTime = rawEndTime;
+    }
+
     return ActivityTourismInfo(
         id: ptx.id?.trim() ?? '',
         name: ptx.name?.trim() ?? '',
@@ -72,9 +84,7 @@ class ActivityTourismInfo {
         startTime: new DateFormat('yyyy-MM-ddTHH:mm:ss')
             .parse(ptx.startTime?.trim() ?? '')
             .toUtc(),
-        endTime: new DateFormat('yyyy-MM-ddTHH:mm:ss')
-            .parse(ptx.endTime?.trim() ?? '')
-            .toUtc(),
+        endTime: fixedEndTime.toUtc(),
         websiteUrl: ptx.websiteUrl?.trim() ?? '',
         picture: new TourismPicture(
           pictureUrl1: fixUrl(ptx.picture!.pictureUrl1?.trim() ?? ''),

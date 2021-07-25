@@ -223,7 +223,7 @@ class _HomePageState extends State<HomePage> {
                                       maxLines: 1,
                                     ),
                                     Text(
-                                      getDateString(
+                                      getEventDateString(
                                           _eventListForDisplay[index].startTime,
                                           _eventListForDisplay[index].endTime),
                                       style: TextStyle(
@@ -380,13 +380,17 @@ class _HomePageState extends State<HomePage> {
         });
   }
 
-  String getDateString(DateTime startDate, DateTime endDate) {
-    DateTime localStartDate = startDate.toLocal();
-    DateTime localEndDate = endDate.toLocal();
+  String getEventDateString(DateTime startDateTime, DateTime endDateTime) {
+    var localStartDateTime = startDateTime.toLocal();
+    var localEndDateTime = endDateTime.toLocal();
+    var localStartDate = DateTime(localStartDateTime.year,
+        localStartDateTime.month, localStartDateTime.day);
+    var localEndDate = DateTime(localEndDateTime.toLocal().year,
+        localEndDateTime.toLocal().month, localEndDateTime.toLocal().day);
     if (localStartDate.isAtSameMomentAs(localEndDate)) {
-      return '${localStartDate.year}/${localStartDate.month}/${localStartDate.day}';
+      return '${DateFormat('yyyy/M/d').format(localStartDateTime)}';
     } else {
-      return '${localStartDate.year}/${localStartDate.month}/${localStartDate.day} - ${localEndDate.year}/${localEndDate.month}/${localEndDate.day}';
+      return '${DateFormat('yyyy/M/d').format(localStartDateTime)} - ${DateFormat('yyyy/M/d').format(localEndDateTime)}';
     }
   }
 }
