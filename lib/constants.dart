@@ -66,6 +66,9 @@ class Constants {
   /// Dimensions
   static const double DIMEN_PRIMARY_MARGIN = 10;
 
+  /// Preference
+  static const bool PREF_SHOW_EXPIRED_EVENTS = true; // 顯示過期的活動
+
   /// HTTP Status Code
   static const int HTTP_STATUS_CODE_OK = 200;
   static const int HTTP_STATUS_CODE_UNAUTHORIZED = 401; // 未帶簽章，未經授權
@@ -84,8 +87,10 @@ class Constants {
   static const String STRING_REFERENCES = '資料來源';
   static const String STRING_OFFLINE = '無法連線';
   static const String STRING_CHECK_CONNECTION = '請檢查網路設定';
+  static const String STRING_PTX = '交通部 PTX (02)2349-2803';
   static const String STRING_SEVER_ERROR = '伺服器錯誤';
   static const String STRING_TRY_LATER = '請稍後再試';
   static const String STRING_OK = '確定';
   static const String STRING_PRESS_AGAIN_TO_QUIT = '再按一次返回鍵退出';
+  static const String STRING_SHOW_EXPIRED_EVENTS = '顯示過期的活動';
 }

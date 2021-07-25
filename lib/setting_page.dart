@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:package_info/package_info.dart';
 import 'constants.dart';
+import 'helper/preference_helper.dart';
 
 class SettingPage extends StatefulWidget {
   @override
@@ -9,6 +10,7 @@ class SettingPage extends StatefulWidget {
 }
 
 class _SettingPageState extends State<SettingPage> {
+  bool _showExpiredEvents = Constants.PREF_SHOW_EXPIRED_EVENTS;
   String _version = '';
 
   @override
@@ -45,6 +47,16 @@ class _SettingPageState extends State<SettingPage> {
             vertical: Constants.DIMEN_PRIMARY_MARGIN / 2),
         child: Column(
           children: [
+            SizedBox(height: Constants.DIMEN_PRIMARY_MARGIN),
+            SwitchListTile(
+                value: _showExpiredEvents,
+                title: Text(Constants.STRING_SHOW_EXPIRED_EVENTS),
+                onChanged: (value) {
+                  setState(() {
+                    _showExpiredEvents = value;
+                    PreferenceHelper.setShowExpiredEvents(_showExpiredEvents);
+                  });
+                }),
             SizedBox(height: Constants.DIMEN_PRIMARY_MARGIN),
             Container(
               margin: EdgeInsets.symmetric(
@@ -99,5 +111,6 @@ class _SettingPageState extends State<SettingPage> {
   Future<void> initVariables() async {
     PackageInfo packageInfo = await PackageInfo.fromPlatform();
     _version = packageInfo.version;
+    _showExpiredEvents = await PreferenceHelper.getShowExpiredEvents();
   }
 }

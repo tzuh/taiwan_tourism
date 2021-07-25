@@ -8,11 +8,12 @@ import 'package:http/http.dart' as http;
 import 'package:crypto/crypto.dart';
 import 'package:intl/intl.dart';
 import 'package:path_provider/path_provider.dart';
-import 'package:taiwantourism/activity_page.dart';
+import 'package:taiwantourism/event_page.dart';
 import 'package:taiwantourism/model/activity_tourism_info.dart';
 import 'package:taiwantourism/setting_page.dart';
 import 'package:taiwantourism/util/network_util.dart';
 import 'constants.dart';
+import 'helper/preference_helper.dart';
 import 'model/ptx_activity_tourism_info.dart';
 import 'package:network_to_file_image/network_to_file_image.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
@@ -30,8 +31,10 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   late Directory _tempDir;
-  List<ActivityTourismInfo> _activityList = <ActivityTourismInfo>[];
+  List<ActivityTourismInfo> _eventList = <ActivityTourismInfo>[];
+  List<ActivityTourismInfo> _eventListForDisplay = <ActivityTourismInfo>[];
   var _alertStatus = AlertStatus.NONE;
+  bool _showExpiredEvents = Constants.PREF_SHOW_EXPIRED_EVENTS;
 
   @override
   void initState() {
@@ -39,7 +42,7 @@ class _HomePageState extends State<HomePage> {
     initVariables().then((value) {
       NetworkUtil.isAvailable().then((isAvailable) {
         if (isAvailable) {
-          refreshDataByCity(widget.currentCity);
+          getEvents(widget.currentCity);
         } else {
           _alertStatus = AlertStatus.IS_OFFLINE;
           setState(() {});
@@ -101,176 +104,228 @@ class _HomePageState extends State<HomePage> {
             tooltip: Constants.STRING_SETTINGS,
             onPressed: () {
               Navigator.push(context,
-                  MaterialPageRoute(builder: (context) => SettingPage()));
+                      MaterialPageRoute(builder: (context) => SettingPage()))
+                  .then((value) {
+                PreferenceHelper.getShowExpiredEvents().then((value) {
+                  if (_showExpiredEvents != value) {
+                    _showExpiredEvents = value;
+                    refreshEventsByOrder();
+                    setState(() {});
+                  }
+                });
+              });
             },
           )
         ],
       ),
-      body: ListView.builder(
-          padding: const EdgeInsets.symmetric(
-              vertical: Constants.DIMEN_PRIMARY_MARGIN / 2),
-          itemCount: _activityList.length,
-          itemBuilder: (BuildContext context, int index) {
-            return InkWell(
-                onTap: () {
-                  Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) => ActivityPage(
-                                activity: _activityList[index],
-                                tempDir: _tempDir,
-                              ))).then((value) => setState(() {}));
-                },
-                child: Container(
-                  height: screenWidth * 0.63,
-                  margin: EdgeInsets.symmetric(
-                      horizontal: Constants.DIMEN_PRIMARY_MARGIN,
+      body: Column(
+        children: [
+          Expanded(
+              flex: 1,
+              child: ListView.builder(
+                  padding: const EdgeInsets.symmetric(
                       vertical: Constants.DIMEN_PRIMARY_MARGIN / 2),
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(16),
-                    border: Border.all(
-                      color: Constants.COLOR_THEME_WHITE,
-                      width: 1,
-                    ),
-                    image: DecorationImage(
-                      image: _activityList[index].picture.pictureUrl1.isNotEmpty
-                          ? NetworkToFileImage(
-                              url: _activityList[index].picture.pictureUrl1,
-                              file: File(join(_tempDir.path,
-                                  '${_activityList[index].id}_a1.jpg')),
-                              debug: false,
-                            )
-                          : Image.asset('assets/images/card_bg.jpg').image,
-                      fit: BoxFit.cover,
-                    ),
-                  ),
-                  child: Stack(
-                    children: <Widget>[
-                      Align(
-                        alignment: Alignment.bottomCenter,
+                  itemCount: _eventListForDisplay.length,
+                  itemBuilder: (BuildContext context, int index) {
+                    return InkWell(
+                        onTap: () {
+                          Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => EventPage(
+                                        event: _eventListForDisplay[index],
+                                        tempDir: _tempDir,
+                                      ))).then((value) => setState(() {}));
+                        },
                         child: Container(
-                          height: screenWidth * 0.25,
-                          width: double.infinity,
+                          height: screenWidth * 0.63,
+                          margin: EdgeInsets.symmetric(
+                              horizontal: Constants.DIMEN_PRIMARY_MARGIN,
+                              vertical: Constants.DIMEN_PRIMARY_MARGIN / 2),
                           decoration: BoxDecoration(
-                            borderRadius: BorderRadius.only(
-                                bottomLeft: Radius.circular(15),
-                                bottomRight: Radius.circular(15)),
-                            gradient: LinearGradient(
-                              begin: const Alignment(0.0, -1.0),
-                              end: const Alignment(0.0, 1.0),
-                              colors: <Color>[
-                                const Color(0x00000000),
-                                const Color(0x30000000),
-                                const Color(0x50000000),
-                                const Color(0x90000000),
-                              ],
-                              stops: [
-                                0.0,
-                                0.2,
-                                0.4,
-                                1.0,
-                              ],
+                            borderRadius: BorderRadius.circular(16),
+                            border: Border.all(
+                              color: Constants.COLOR_THEME_WHITE,
+                              width: 1,
+                            ),
+                            image: DecorationImage(
+                              image: _eventListForDisplay[index]
+                                      .picture
+                                      .pictureUrl1
+                                      .isNotEmpty
+                                  ? NetworkToFileImage(
+                                      url: _eventListForDisplay[index]
+                                          .picture
+                                          .pictureUrl1,
+                                      file: File(join(_tempDir.path,
+                                          '${_eventListForDisplay[index].id}_a1.jpg')),
+                                      debug: false,
+                                    )
+                                  : Image.asset('assets/images/card_bg.jpg')
+                                      .image,
+                              fit: BoxFit.cover,
                             ),
                           ),
-                        ),
-                      ),
-                      Container(
-                        padding: EdgeInsets.symmetric(
-                            horizontal: Constants.DIMEN_PRIMARY_MARGIN,
-                            vertical: Constants.DIMEN_PRIMARY_MARGIN),
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.end,
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              '${_activityList[index].name}',
-                              style: TextStyle(
-                                  fontSize: 16,
-                                  color:
-                                      Theme.of(context).scaffoldBackgroundColor,
-                                  backgroundColor: Colors.transparent),
-                              maxLines: 2,
-                            ),
-                            Text(
-                              _activityList[index].location,
-                              style: TextStyle(
-                                  fontSize: 14,
-                                  color:
-                                      Theme.of(context).scaffoldBackgroundColor,
-                                  backgroundColor: Colors.transparent),
-                              maxLines: 1,
-                            ),
-                            Text(
-                              getDateString(_activityList[index].startTime,
-                                  _activityList[index].endTime),
-                              style: TextStyle(
-                                  fontSize: 14,
-                                  color: _activityList[index]
-                                          .endTime
-                                          .isBefore(DateTime.now().toUtc())
-                                      ? Constants.COLOR_THEME_RED
-                                      : Theme.of(context)
-                                          .scaffoldBackgroundColor),
-                              maxLines: 1,
-                            ),
-                          ],
-                        ),
-                      )
-                    ],
-                  ),
-                ));
-          }),
+                          child: Stack(
+                            children: <Widget>[
+                              Align(
+                                alignment: Alignment.bottomCenter,
+                                child: Container(
+                                  height: screenWidth * 0.25,
+                                  width: double.infinity,
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.only(
+                                        bottomLeft: Radius.circular(15),
+                                        bottomRight: Radius.circular(15)),
+                                    gradient: LinearGradient(
+                                      begin: const Alignment(0.0, -1.0),
+                                      end: const Alignment(0.0, 1.0),
+                                      colors: <Color>[
+                                        const Color(0x00000000),
+                                        const Color(0x30000000),
+                                        const Color(0x50000000),
+                                        const Color(0x90000000),
+                                      ],
+                                      stops: [
+                                        0.0,
+                                        0.2,
+                                        0.4,
+                                        1.0,
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              Container(
+                                padding: EdgeInsets.symmetric(
+                                    horizontal: Constants.DIMEN_PRIMARY_MARGIN,
+                                    vertical: Constants.DIMEN_PRIMARY_MARGIN),
+                                child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.end,
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      '${_eventListForDisplay[index].name}',
+                                      style: TextStyle(
+                                          fontSize: 16,
+                                          color: Theme.of(context)
+                                              .scaffoldBackgroundColor,
+                                          backgroundColor: Colors.transparent),
+                                      maxLines: 2,
+                                    ),
+                                    Text(
+                                      _eventListForDisplay[index].location,
+                                      style: TextStyle(
+                                          fontSize: 14,
+                                          color: Theme.of(context)
+                                              .scaffoldBackgroundColor,
+                                          backgroundColor: Colors.transparent),
+                                      maxLines: 1,
+                                    ),
+                                    Text(
+                                      getDateString(
+                                          _eventListForDisplay[index].startTime,
+                                          _eventListForDisplay[index].endTime),
+                                      style: TextStyle(
+                                          fontSize: 14,
+                                          color: _eventListForDisplay[index]
+                                                  .endTime
+                                                  .isBefore(
+                                                      DateTime.now().toUtc())
+                                              ? Constants.COLOR_THEME_RED
+                                              : Theme.of(context)
+                                                  .scaffoldBackgroundColor),
+                                      maxLines: 1,
+                                    ),
+                                  ],
+                                ),
+                              )
+                            ],
+                          ),
+                        ));
+                  })),
+          Container(
+            padding: EdgeInsets.all(Constants.DIMEN_PRIMARY_MARGIN / 2),
+            width: double.infinity,
+            color: Constants.COLOR_THEME_BLUE_GREY,
+            alignment: Alignment.center,
+            child: Text(
+              '${Constants.STRING_REFERENCES}: ${Constants.STRING_PTX}',
+              style: TextStyle(
+                fontSize: 12,
+                color: Constants.COLOR_THEME_WHITE,
+              ),
+              textAlign: TextAlign.center,
+            ),
+          )
+        ],
+      ),
     );
   }
 
   Future<void> initVariables() async {
     _tempDir = await getTemporaryDirectory();
+    _showExpiredEvents = await PreferenceHelper.getShowExpiredEvents();
   }
 
-  void refreshDataByCity(String city) {
+  void getEvents(String city) {
     getPtxDataByCity(city).then((response) {
       print('PTX status code: ${response.statusCode}');
       if (response.statusCode == Constants.HTTP_STATUS_CODE_OK) {
-        _activityList.clear();
+        // Parse data
         List<PtxActivityTourismInfo> list = List<PtxActivityTourismInfo>.from(
             json
                 .decode(response.body)
                 .map((s) => PtxActivityTourismInfo.fromJson(s)));
-        List<ActivityTourismInfo> rawActivityList = <ActivityTourismInfo>[];
+        // Remove duplicate data
+        List<ActivityTourismInfo> rawEventList = <ActivityTourismInfo>[];
         var checkedList = Map<String, DateTime>();
         list.forEach((ptx) {
-          var activity = ActivityTourismInfo.fromPtx(ptx);
-          rawActivityList.add(activity);
-          if (checkedList.containsKey(activity.id)) {
-            if (checkedList[activity.id]!.isBefore(activity.updateTime)) {
-              checkedList[activity.id] = activity.updateTime;
+          var event = ActivityTourismInfo.fromPtx(ptx);
+          rawEventList.add(event);
+          if (checkedList.containsKey(event.id)) {
+            if (checkedList[event.id]!.isBefore(event.updateTime)) {
+              checkedList[event.id] = event.updateTime;
             }
           } else {
-            checkedList[activity.id] = activity.updateTime;
+            checkedList[event.id] = event.updateTime;
           }
         });
-        List<ActivityTourismInfo> oldActivityList = <ActivityTourismInfo>[];
-        List<ActivityTourismInfo> newActivityList = <ActivityTourismInfo>[];
-        DateTime now = DateTime.now().toUtc();
-        rawActivityList.forEach((activity) {
-          if (checkedList[activity.id]!.isAtSameMomentAs(activity.updateTime)) {
-            if (activity.endTime.isBefore(now)) {
-              oldActivityList.add(activity);
-            } else {
-              newActivityList.add(activity);
-            }
+        _eventList.clear();
+        rawEventList.forEach((event) {
+          if (checkedList[event.id]!.isAtSameMomentAs(event.updateTime)) {
+            _eventList.add(event);
           }
         });
-        rawActivityList.clear();
-        oldActivityList.sort((a, b) => a.endTime.isBefore(b.endTime) ? 1 : -1);
-        newActivityList.sort((a, b) => a.endTime.isAfter(b.endTime) ? 1 : -1);
-        _activityList = newActivityList + oldActivityList;
+        checkedList.clear();
+        rawEventList.clear();
+        refreshEventsByOrder();
       } else {
         // Failed to get PTX data due to unknown error
         _alertStatus = AlertStatus.SEVER_ERROR;
       }
       setState(() {});
     });
+  }
+
+  void refreshEventsByOrder() {
+    _eventListForDisplay.clear();
+    List<ActivityTourismInfo> oldEventList = <ActivityTourismInfo>[];
+    List<ActivityTourismInfo> newEventList = <ActivityTourismInfo>[];
+    DateTime now = DateTime.now().toUtc();
+    _eventList.forEach((event) {
+      if (event.endTime.isBefore(now)) {
+        oldEventList.add(event);
+      } else {
+        newEventList.add(event);
+      }
+    });
+    oldEventList.sort((a, b) => a.endTime.isBefore(b.endTime) ? 1 : -1);
+    newEventList.sort((a, b) => a.endTime.isAfter(b.endTime) ? 1 : -1);
+    _eventListForDisplay = newEventList;
+    if (_showExpiredEvents) {
+      _eventListForDisplay += oldEventList;
+    }
   }
 
   showAlertDialog(BuildContext context, String title, String content) {

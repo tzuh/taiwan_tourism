@@ -7,22 +7,22 @@ import 'package:url_launcher/url_launcher.dart';
 import 'constants.dart';
 import 'model/activity_tourism_info.dart';
 
-class ActivityPage extends StatefulWidget {
-  final ActivityTourismInfo activity;
+class EventPage extends StatefulWidget {
+  final ActivityTourismInfo event;
   final Directory tempDir;
 
-  ActivityPage({required this.activity, required this.tempDir});
+  EventPage({required this.event, required this.tempDir});
 
   @override
-  _ActivityPageState createState() => _ActivityPageState();
+  _EventPageState createState() => _EventPageState();
 }
 
-class _ActivityPageState extends State<ActivityPage> {
+class _EventPageState extends State<EventPage> {
   @override
   Widget build(BuildContext context) {
-    bool _hasAddress = widget.activity.address.isNotEmpty;
-    bool _hasPhone = widget.activity.phone.isNotEmpty;
-    bool _hasWebsite = widget.activity.websiteUrl.isNotEmpty;
+    bool _hasAddress = widget.event.address.isNotEmpty;
+    bool _hasPhone = widget.event.phone.isNotEmpty;
+    bool _hasWebsite = widget.event.websiteUrl.isNotEmpty;
     return Scaffold(
         backgroundColor: Constants.COLOR_THEME_DARK_WHITE,
         appBar: AppBar(
@@ -61,7 +61,7 @@ class _ActivityPageState extends State<ActivityPage> {
                         horizontal: Constants.DIMEN_PRIMARY_MARGIN,
                         vertical: Constants.DIMEN_PRIMARY_MARGIN / 2),
                     child: SelectableText(
-                      '${widget.activity.name}',
+                      '${widget.event.name}',
                       style: TextStyle(
                         fontSize: 24,
                         color: Constants.COLOR_THEME_BLACK,
@@ -74,10 +74,10 @@ class _ActivityPageState extends State<ActivityPage> {
                         vertical: Constants.DIMEN_PRIMARY_MARGIN / 2),
                     child: SelectableText(
                       getDateString(
-                          widget.activity.startTime, widget.activity.endTime),
+                          widget.event.startTime, widget.event.endTime),
                       style: TextStyle(
                           fontSize: 16,
-                          color: widget.activity.endTime
+                          color: widget.event.endTime
                                   .isBefore(DateTime.now().toUtc())
                               ? Constants.COLOR_THEME_RED
                               : Constants.COLOR_THEME_BLACK),
@@ -90,7 +90,7 @@ class _ActivityPageState extends State<ActivityPage> {
                             horizontal: Constants.DIMEN_PRIMARY_MARGIN,
                             vertical: Constants.DIMEN_PRIMARY_MARGIN / 2),
                         child: SelectableText(
-                          '${widget.activity.address}',
+                          '${widget.event.address}',
                           style: TextStyle(
                             fontSize: 16,
                             color: Constants.COLOR_THEME_BLACK,
@@ -104,7 +104,7 @@ class _ActivityPageState extends State<ActivityPage> {
                             horizontal: Constants.DIMEN_PRIMARY_MARGIN,
                             vertical: Constants.DIMEN_PRIMARY_MARGIN / 2),
                         child: SelectableText(
-                          '${widget.activity.phone}',
+                          '${widget.event.phone}',
                           style: TextStyle(
                             fontSize: 16,
                             color: Constants.COLOR_THEME_BLACK,
@@ -122,9 +122,9 @@ class _ActivityPageState extends State<ActivityPage> {
                               visible: _hasWebsite,
                               child: IconButton(
                                 onPressed: () async {
-                                  await canLaunch(widget.activity.websiteUrl)
-                                      ? await launch(widget.activity.websiteUrl)
-                                      : throw 'Could not launch ${widget.activity.websiteUrl}';
+                                  await canLaunch(widget.event.websiteUrl)
+                                      ? await launch(widget.event.websiteUrl)
+                                      : throw 'Could not launch ${widget.event.websiteUrl}';
                                 },
                                 icon: Icon(
                                   Icons.web,
@@ -137,10 +137,10 @@ class _ActivityPageState extends State<ActivityPage> {
                               child: IconButton(
                                 onPressed: () async {
                                   await canLaunch(
-                                          'tel:' + widget.activity.phone)
+                                          'tel:' + widget.event.phone)
                                       ? await launch(
-                                          'tel:' + widget.activity.phone)
-                                      : throw 'Could not launch ${widget.activity.phone}';
+                                          'tel:' + widget.event.phone)
+                                      : throw 'Could not launch ${widget.event.phone}';
                                 },
                                 icon: Icon(
                                   Icons.phone,
@@ -152,7 +152,7 @@ class _ActivityPageState extends State<ActivityPage> {
                       ),
                     )),
                 Visibility(
-                    visible: widget.activity.picture.pictureUrl1.isNotEmpty,
+                    visible: widget.event.picture.pictureUrl1.isNotEmpty,
                     child: Container(
                       margin: EdgeInsets.symmetric(
                           horizontal: Constants.DIMEN_PRIMARY_MARGIN,
@@ -167,9 +167,9 @@ class _ActivityPageState extends State<ActivityPage> {
                         children: [
                           Image(
                             image: NetworkToFileImage(
-                              url: widget.activity.picture.pictureUrl1,
+                              url: widget.event.picture.pictureUrl1,
                               file: File(join(widget.tempDir.path,
-                                  '${widget.activity.id}_a1.jpg')),
+                                  '${widget.event.id}_a1.jpg')),
                               debug: false,
                             ),
                           ),
@@ -177,7 +177,7 @@ class _ActivityPageState extends State<ActivityPage> {
                               margin: EdgeInsets.only(
                                   top: Constants.DIMEN_PRIMARY_MARGIN / 2),
                               child: Text(
-                                '${widget.activity.picture.pictureDescription1}',
+                                '${widget.event.picture.pictureDescription1}',
                                 style: TextStyle(
                                   fontSize: 12,
                                   color: Constants.COLOR_THEME_BLACK,
@@ -189,7 +189,7 @@ class _ActivityPageState extends State<ActivityPage> {
                       ),
                     )),
                 Visibility(
-                    visible: widget.activity.picture.pictureUrl2.isNotEmpty,
+                    visible: widget.event.picture.pictureUrl2.isNotEmpty,
                     child: Container(
                       margin: EdgeInsets.symmetric(
                           horizontal: Constants.DIMEN_PRIMARY_MARGIN,
@@ -204,9 +204,9 @@ class _ActivityPageState extends State<ActivityPage> {
                         children: [
                           Image(
                             image: NetworkToFileImage(
-                              url: widget.activity.picture.pictureUrl2,
+                              url: widget.event.picture.pictureUrl2,
                               file: File(join(widget.tempDir.path,
-                                  '${widget.activity.id}_a2.jpg')),
+                                  '${widget.event.id}_a2.jpg')),
                               debug: false,
                             ),
                           ),
@@ -214,7 +214,7 @@ class _ActivityPageState extends State<ActivityPage> {
                               margin: EdgeInsets.only(
                                   top: Constants.DIMEN_PRIMARY_MARGIN / 2),
                               child: Text(
-                                '${widget.activity.picture.pictureDescription2}',
+                                '${widget.event.picture.pictureDescription2}',
                                 style: TextStyle(
                                   fontSize: 12,
                                   color: Constants.COLOR_THEME_BLACK,
@@ -226,7 +226,7 @@ class _ActivityPageState extends State<ActivityPage> {
                       ),
                     )),
                 Visibility(
-                    visible: widget.activity.picture.pictureUrl3.isNotEmpty,
+                    visible: widget.event.picture.pictureUrl3.isNotEmpty,
                     child: Container(
                       margin: EdgeInsets.symmetric(
                           horizontal: Constants.DIMEN_PRIMARY_MARGIN,
@@ -241,9 +241,9 @@ class _ActivityPageState extends State<ActivityPage> {
                         children: [
                           Image(
                             image: NetworkToFileImage(
-                              url: widget.activity.picture.pictureUrl3,
+                              url: widget.event.picture.pictureUrl3,
                               file: File(join(widget.tempDir.path,
-                                  '${widget.activity.id}_a3.jpg')),
+                                  '${widget.event.id}_a3.jpg')),
                               debug: false,
                             ),
                           ),
@@ -251,7 +251,7 @@ class _ActivityPageState extends State<ActivityPage> {
                               margin: EdgeInsets.only(
                                   top: Constants.DIMEN_PRIMARY_MARGIN / 2),
                               child: Text(
-                                '${widget.activity.picture.pictureDescription3}',
+                                '${widget.event.picture.pictureDescription3}',
                                 style: TextStyle(
                                   fontSize: 12,
                                   color: Constants.COLOR_THEME_BLACK,
@@ -263,13 +263,13 @@ class _ActivityPageState extends State<ActivityPage> {
                       ),
                     )),
                 Visibility(
-                    visible: widget.activity.description.isNotEmpty,
+                    visible: widget.event.description.isNotEmpty,
                     child: Container(
                         margin: EdgeInsets.symmetric(
                             horizontal: Constants.DIMEN_PRIMARY_MARGIN,
                             vertical: Constants.DIMEN_PRIMARY_MARGIN / 2),
                         child: SelectableText(
-                          '${widget.activity.description}',
+                          '${widget.event.description}',
                           style: TextStyle(
                             fontSize: 16,
                             color: Constants.COLOR_THEME_BLACK,
