@@ -152,6 +152,20 @@ class _EventPageState extends State<EventPage> {
                       ),
                     )),
                 Visibility(
+                    visible: widget.event.organizer.isNotEmpty,
+                    child: Container(
+                        margin: EdgeInsets.symmetric(
+                            horizontal: Constants.DIMEN_PRIMARY_MARGIN,
+                            vertical: Constants.DIMEN_PRIMARY_MARGIN / 2),
+                        child: SelectableText(
+                          '${Constants.STRING_ORGANIZER}: ${widget.event.organizer}',
+                          style: TextStyle(
+                            fontSize: 16,
+                            color: Constants.COLOR_THEME_BLACK,
+                          ),
+                          textAlign: TextAlign.center,
+                        ))),
+                Visibility(
                     visible: widget.event.picture.pictureUrl1.isNotEmpty,
                     child: Container(
                       margin: EdgeInsets.symmetric(
@@ -275,6 +289,19 @@ class _EventPageState extends State<EventPage> {
                             color: Constants.COLOR_THEME_BLACK,
                           ),
                         ))),
+                Container(
+                    margin: EdgeInsets.symmetric(
+                        horizontal: Constants.DIMEN_PRIMARY_MARGIN,
+                        vertical: Constants.DIMEN_PRIMARY_MARGIN / 2),
+                    child: Text(
+                      '${Constants.STRING_UPDATE_TIME}: ${DateFormat('yyyy/M/d').format(widget.event.srcUpdateTime.toLocal())}',
+                      style: TextStyle(
+                        fontSize: 16,
+                        color: Constants.COLOR_THEME_BLACK,
+                      ),
+                      textAlign: TextAlign.center,
+                      maxLines: 2,
+                    )),
               ],
             ),
           ),
@@ -284,23 +311,19 @@ class _EventPageState extends State<EventPage> {
   String getEventDateString(DateTime startDateTime, DateTime endDateTime) {
     var localStartDateTime = startDateTime.toLocal();
     var localEndDateTime = endDateTime.toLocal();
-    var localStartDate = DateTime(localStartDateTime.year,
-        localStartDateTime.month, localStartDateTime.day);
-    var localEndDate = DateTime(localEndDateTime.toLocal().year,
-        localEndDateTime.toLocal().month, localEndDateTime.toLocal().day);
-    if (localStartDate.isAtSameMomentAs(localEndDate)) {
-      if (localStartDateTime.hour == 0 &&
-          localStartDateTime.minute == 0 &&
-          localStartDateTime.second == 0 &&
-          localEndDateTime.hour == 23 &&
-          localEndDateTime.minute == 59 &&
-          localEndDateTime.second == 59) {
-        return '${DateFormat('yyyy/M/d').format(localStartDateTime)}';
-      } else {
-        return '${DateFormat('yyyy/M/d HH:mm').format(localStartDateTime)} - ${DateFormat('HH:mm').format(localEndDateTime)}';
-      }
+    var duration = endDateTime.difference(startDateTime).inSeconds;
+    if (duration < 86400) {
+      // 單日活動
+      return '${DateFormat('yyyy/M/d HH:mm').format(localStartDateTime)} - ${DateFormat('HH:mm').format(localEndDateTime)}';
+    } else if (duration == 86400) {
+      // 單日整天活動
+      return '${DateFormat('yyyy/M/d').format(localStartDateTime)}';
+    } else if ((duration / 86400 > 1) && (duration % 86400 == 0)) {
+      // 多日整天活動
+      return '${DateFormat('yyyy/M/d').format(localStartDateTime)} - ${DateFormat('yyyy/M/d').format(localEndDateTime.add(Duration(days: -1)))}';
     } else {
-      return '${DateFormat('yyyy/M/d').format(localStartDateTime)} - ${DateFormat('yyyy/M/d').format(localEndDateTime)}';
+      // 有特定時間戳記的活動
+      return '${DateFormat('yyyy/M/d HH:mm').format(localStartDateTime)} - ${DateFormat('yyyy/M/d HH:mm').format(localEndDateTime)}';
     }
   }
 }

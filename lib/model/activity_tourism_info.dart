@@ -61,15 +61,39 @@ class ActivityTourismInfo {
       return phoneNum;
     }
 
+    DateTime rawStartTime = new DateFormat('yyyy-MM-ddTHH:mm:ss')
+        .parse(ptx.startTime?.trim() ?? '');
     DateTime rawEndTime =
         new DateFormat('yyyy-MM-ddTHH:mm:ss').parse(ptx.endTime?.trim() ?? '');
+    DateTime fixedStartTime;
     DateTime fixedEndTime;
-    if (rawEndTime.hour == 0 &&
-        rawEndTime.minute == 0 &&
-        rawEndTime.millisecond == 0) {
-      fixedEndTime = DateTime(
-          rawEndTime.year, rawEndTime.month, rawEndTime.day, 23, 59, 59);
+    var duration = rawEndTime.difference(rawStartTime).inSeconds;
+    if (duration == 0 || (86340 <= duration && duration < 86400)) {
+      /// 修正單日整天的活動
+      /// E.g.
+      /// 5/2 00:00:?? - 5/2 00:00:?? (0 sec)
+      /// 5/2 10:00:?? - 5/2 10:00:?? (0 sec)
+      /// 5/2 00:00:00 - 5/2 23:59:00 (86340 secs)
+      /// 5/2 00:00:00 - 5/2 23:59:59 (86399 secs)
+      /// >>> 5/2 00:00:00 - 5/3 00:00:00
+      fixedStartTime =
+          DateTime(rawStartTime.year, rawStartTime.month, rawStartTime.day);
+      fixedEndTime = fixedStartTime.add(Duration(days: 1));
+    } else if ((duration / 86400 > 1) && (duration % 86400 == 0)) {
+      /// 修正多日整天的活動
+      /// E.g.
+      /// 5/2 00:00:00 - 5/9 00:00:00
+      /// >>> 5/2 00:00:00 - 5/10 00:00:00
+      fixedStartTime =
+          DateTime(rawStartTime.year, rawStartTime.month, rawStartTime.day);
+      fixedEndTime = DateTime(rawEndTime.year, rawEndTime.month, rawEndTime.day)
+          .add(Duration(days: 1));
     } else {
+      /// 有正確時間戳記的活動
+      /// E.g.
+      /// 5/2 10:00:00 - 5/2 18:00:00
+      /// 5/2 10:00:00 - 5/9 18:00:00
+      fixedStartTime = rawStartTime;
       fixedEndTime = rawEndTime;
     }
 
@@ -81,9 +105,7 @@ class ActivityTourismInfo {
         address: ptx.address?.trim() ?? '',
         phone: fixPhoneNumber(ptx.phone?.trim() ?? ''),
         organizer: ptx.organizer?.trim() ?? '',
-        startTime: new DateFormat('yyyy-MM-ddTHH:mm:ss')
-            .parse(ptx.startTime?.trim() ?? '')
-            .toUtc(),
+        startTime: fixedStartTime.toUtc(),
         endTime: fixedEndTime.toUtc(),
         websiteUrl: ptx.websiteUrl?.trim() ?? '',
         picture: new TourismPicture(

@@ -35,6 +35,7 @@ class _HomePageState extends State<HomePage> {
   List<ActivityTourismInfo> _eventListForDisplay = <ActivityTourismInfo>[];
   var _alertStatus = AlertStatus.NONE;
   bool _showExpiredEvents = Constants.PREF_SHOW_EXPIRED_EVENTS;
+  bool _showNoContent = false;
 
   @override
   void initState() {
@@ -121,8 +122,9 @@ class _HomePageState extends State<HomePage> {
       body: Column(
         children: [
           Expanded(
-              flex: 1,
-              child: ListView.builder(
+            flex: 1,
+            child: Stack(children: [
+              ListView.builder(
                   padding: const EdgeInsets.symmetric(
                       vertical: Constants.DIMEN_PRIMARY_MARGIN / 2),
                   itemCount: _eventListForDisplay.length,
@@ -243,14 +245,30 @@ class _HomePageState extends State<HomePage> {
                             ],
                           ),
                         ));
-                  })),
+                  }),
+              Visibility(
+                visible: _showNoContent,
+                child: Container(
+                  alignment: Alignment.center,
+                  child: Text(
+                    Constants.STRING_NO_SUITABLE_CONTENT,
+                    style: TextStyle(
+                      fontSize: 16,
+                      color: Constants.COLOR_THEME_BLACK,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                ),
+              )
+            ]),
+          ),
           Container(
             padding: EdgeInsets.all(Constants.DIMEN_PRIMARY_MARGIN / 2),
             width: double.infinity,
             color: Constants.COLOR_THEME_BLUE_GREY,
             alignment: Alignment.center,
             child: Text(
-              '${Constants.STRING_REFERENCES}: ${Constants.STRING_PTX}',
+              '${Constants.STRING_PTX}',
               style: TextStyle(
                 fontSize: 12,
                 color: Constants.COLOR_THEME_WHITE,
@@ -314,6 +332,8 @@ class _HomePageState extends State<HomePage> {
     List<ActivityTourismInfo> newEventList = <ActivityTourismInfo>[];
     DateTime now = DateTime.now().toUtc();
     _eventList.forEach((event) {
+      print('${event.name}');
+      print('${event.startTime.toLocal()} - ${event.endTime.toLocal()}');
       if (event.endTime.isBefore(now)) {
         oldEventList.add(event);
       } else {
@@ -326,6 +346,7 @@ class _HomePageState extends State<HomePage> {
     if (_showExpiredEvents) {
       _eventListForDisplay += oldEventList;
     }
+    _showNoContent = _eventListForDisplay.length == 0;
   }
 
   showAlertDialog(BuildContext context, String title, String content) {
@@ -383,13 +404,15 @@ class _HomePageState extends State<HomePage> {
   String getEventDateString(DateTime startDateTime, DateTime endDateTime) {
     var localStartDateTime = startDateTime.toLocal();
     var localEndDateTime = endDateTime.toLocal();
-    var localStartDate = DateTime(localStartDateTime.year,
-        localStartDateTime.month, localStartDateTime.day);
-    var localEndDate = DateTime(localEndDateTime.toLocal().year,
-        localEndDateTime.toLocal().month, localEndDateTime.toLocal().day);
-    if (localStartDate.isAtSameMomentAs(localEndDate)) {
+    var duration = endDateTime.difference(startDateTime).inSeconds;
+    if (duration <= 86400) {
+      // 單日活動
       return '${DateFormat('yyyy/M/d').format(localStartDateTime)}';
+    } else if ((duration / 86400 > 1) && (duration % 86400 == 0)) {
+      // 多日整天活動
+      return '${DateFormat('yyyy/M/d').format(localStartDateTime)} - ${DateFormat('yyyy/M/d').format(localEndDateTime.add(Duration(days: -1)))}';
     } else {
+      // 有特定時間戳記的活動
       return '${DateFormat('yyyy/M/d').format(localStartDateTime)} - ${DateFormat('yyyy/M/d').format(localEndDateTime)}';
     }
   }
