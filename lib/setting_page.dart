@@ -11,6 +11,7 @@ class SettingPage extends StatefulWidget {
 
 class _SettingPageState extends State<SettingPage> {
   bool _showExpiredEvents = Constants.PREF_SHOW_EXPIRED_EVENTS;
+  int _eventSortBy = Constants.PREF_EVENT_SORT_BY;
   String _version = '';
 
   @override
@@ -25,6 +26,7 @@ class _SettingPageState extends State<SettingPage> {
     return Scaffold(
       backgroundColor: Constants.COLOR_THEME_DARK_WHITE,
       appBar: AppBar(
+        centerTitle: true,
         automaticallyImplyLeading: false,
         leading: Navigator.canPop(context)
             ? IconButton(
@@ -42,25 +44,77 @@ class _SettingPageState extends State<SettingPage> {
       ),
       body: Container(
         width: double.infinity,
-        margin: EdgeInsets.symmetric(
-            horizontal: Constants.DIMEN_PRIMARY_MARGIN,
-            vertical: Constants.DIMEN_PRIMARY_MARGIN / 2),
         child: Column(
           children: [
-            SizedBox(height: Constants.DIMEN_PRIMARY_MARGIN),
-            SwitchListTile(
+            Container(
+              child: SwitchListTile(
                 value: _showExpiredEvents,
-                title: Text(Constants.STRING_SHOW_EXPIRED_EVENTS),
+                contentPadding: EdgeInsets.symmetric(
+                    vertical: Constants.DIMEN_PRIMARY_MARGIN,
+                    horizontal: Constants.DIMEN_PRIMARY_MARGIN * 2),
+                title: Text(
+                  Constants.STRING_SHOW_EXPIRED_EVENTS,
+                  style: TextStyle(
+                      fontSize: 16, color: Constants.COLOR_THEME_BLACK),
+                  textAlign: TextAlign.start,
+                ),
                 onChanged: (value) {
                   setState(() {
                     _showExpiredEvents = value;
                     PreferenceHelper.setShowExpiredEvents(_showExpiredEvents);
                   });
-                }),
-            SizedBox(height: Constants.DIMEN_PRIMARY_MARGIN),
+                },
+              ),
+            ),
             Container(
+              height: 1,
               margin: EdgeInsets.symmetric(
-                  vertical: Constants.DIMEN_PRIMARY_MARGIN / 2),
+                  horizontal: Constants.DIMEN_PRIMARY_MARGIN * 2),
+              color: Constants.COLOR_THEME_WHITE,
+            ),
+            Container(
+              padding: EdgeInsets.symmetric(
+                  vertical: Constants.DIMEN_PRIMARY_MARGIN,
+                  horizontal: Constants.DIMEN_PRIMARY_MARGIN * 2),
+              child: DropdownButtonHideUnderline(
+                child: DropdownButton(
+                  value: _eventSortBy,
+                  items: [
+                    DropdownMenuItem(
+                      child: Text(Constants.STRING_SORT_BY_START_TIME),
+                      value: Constants.EVENT_SORT_BY_START_TIME,
+                    ),
+                    DropdownMenuItem(
+                      child: Text(Constants.STRING_SORT_BY_END_TIME),
+                      value: Constants.EVENT_SORT_BY_END_TIME,
+                    )
+                  ],
+                  onChanged: (value) {
+                    setState(() {
+                      _eventSortBy = value as int;
+                      PreferenceHelper.setEventSortBy(_eventSortBy);
+                    });
+                  },
+                  style: TextStyle(
+                      fontSize: 16, color: Constants.COLOR_THEME_BLACK),
+                  icon: Icon(Icons.arrow_drop_down, size: 30),
+                  iconEnabledColor: Constants.COLOR_THEME_BLUE_GREY,
+                  isExpanded: true,
+                  elevation: 4,
+                  dropdownColor: Constants.COLOR_THEME_DARK_WHITE,
+                ),
+              ),
+            ),
+            Container(
+              height: 1,
+              margin: EdgeInsets.symmetric(
+                  horizontal: Constants.DIMEN_PRIMARY_MARGIN * 2),
+              color: Constants.COLOR_THEME_WHITE,
+            ),
+            Container(
+              padding: EdgeInsets.symmetric(
+                  horizontal: Constants.DIMEN_PRIMARY_MARGIN,
+                  vertical: Constants.DIMEN_PRIMARY_MARGIN * 2),
               child: Column(
                 children: [
                   Text(Constants.STRING_APP_VERSION,
@@ -79,9 +133,9 @@ class _SettingPageState extends State<SettingPage> {
                 ],
               ),
             ),
-            SizedBox(height: Constants.DIMEN_PRIMARY_MARGIN),
             Container(
-              margin: EdgeInsets.symmetric(
+              padding: EdgeInsets.symmetric(
+                  horizontal: Constants.DIMEN_PRIMARY_MARGIN,
                   vertical: Constants.DIMEN_PRIMARY_MARGIN / 2),
               child: Column(
                 children: [
@@ -112,5 +166,6 @@ class _SettingPageState extends State<SettingPage> {
     PackageInfo packageInfo = await PackageInfo.fromPlatform();
     _version = packageInfo.version;
     _showExpiredEvents = await PreferenceHelper.getShowExpiredEvents();
+    _eventSortBy = await PreferenceHelper.getEventSortBy();
   }
 }

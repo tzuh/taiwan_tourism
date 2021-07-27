@@ -68,8 +68,13 @@ class Constants {
 
   /// Preference
   static const bool PREF_SHOW_EXPIRED_EVENTS = true; // 顯示過期的活動
+  static const int PREF_EVENT_SORT_BY = EVENT_SORT_BY_END_TIME; // 顯示過期的活動
 
-  /// HTTP Status Code
+  /// Event sort by
+  static const int EVENT_SORT_BY_START_TIME = 0; // 依開始日期排序
+  static const int EVENT_SORT_BY_END_TIME = 1; // 依結束日期排序
+
+  /// HTTP status code
   static const int HTTP_STATUS_CODE_OK = 200;
   static const int HTTP_STATUS_CODE_UNAUTHORIZED = 401; // 未帶簽章，未經授權
   static const int HTTP_STATUS_CODE_SIGNATURE_ERROR = 403; // 簽章錯誤
@@ -96,4 +101,6 @@ class Constants {
   static const String STRING_PRESS_AGAIN_TO_QUIT = '再按一次返回鍵退出';
   static const String STRING_NO_SUITABLE_CONTENT = '沒有符合條件的資料';
   static const String STRING_SHOW_EXPIRED_EVENTS = '顯示過期的活動';
+  static const String STRING_SORT_BY_START_TIME = '依開始日期排序';
+  static const String STRING_SORT_BY_END_TIME = '依結束日期排序';
 }

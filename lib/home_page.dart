@@ -35,6 +35,7 @@ class _HomePageState extends State<HomePage> {
   List<ActivityTourismInfo> _eventListForDisplay = <ActivityTourismInfo>[];
   var _alertStatus = AlertStatus.NONE;
   bool _showExpiredEvents = Constants.PREF_SHOW_EXPIRED_EVENTS;
+  int _eventSortBy = Constants.PREF_EVENT_SORT_BY;
   bool _showNoContent = false;
 
   @override
@@ -107,10 +108,17 @@ class _HomePageState extends State<HomePage> {
               Navigator.push(context,
                       MaterialPageRoute(builder: (context) => SettingPage()))
                   .then((value) {
-                PreferenceHelper.getShowExpiredEvents().then((value) {
-                  if (_showExpiredEvents != value) {
-                    _showExpiredEvents = value;
-                    refreshEventsByOrder();
+                PreferenceHelper.getPrefs().then((prefs) {
+                  var showExpiredEvents =
+                      prefs.getBool(PreferenceHelper.KEY_SHOW_EXPIRED_EVENTS);
+                  var eventSortBy =
+                      prefs.getInt(PreferenceHelper.KEY_EVENT_SORT_BY);
+                  if ((_showExpiredEvents != showExpiredEvents) ||
+                      (_eventSortBy != eventSortBy)) {
+                    _showExpiredEvents =
+                        showExpiredEvents ?? Constants.PREF_SHOW_EXPIRED_EVENTS;
+                    _eventSortBy = eventSortBy ?? Constants.PREF_EVENT_SORT_BY;
+                    sortEventsBySetting();
                     setState(() {});
                   }
                 });
@@ -284,6 +292,7 @@ class _HomePageState extends State<HomePage> {
   Future<void> initVariables() async {
     _tempDir = await getTemporaryDirectory();
     _showExpiredEvents = await PreferenceHelper.getShowExpiredEvents();
+    _eventSortBy = await PreferenceHelper.getEventSortBy();
   }
 
   void getEvents(String city) {
@@ -317,7 +326,7 @@ class _HomePageState extends State<HomePage> {
         });
         checkedList.clear();
         rawEventList.clear();
-        refreshEventsByOrder();
+        sortEventsBySetting();
       } else {
         // Failed to get PTX data due to unknown error
         _alertStatus = AlertStatus.SEVER_ERROR;
@@ -326,22 +335,34 @@ class _HomePageState extends State<HomePage> {
     });
   }
 
-  void refreshEventsByOrder() {
+  void sortEventsBySetting() {
+    print('refreshEventsByOrder');
     _eventListForDisplay.clear();
     List<ActivityTourismInfo> oldEventList = <ActivityTourismInfo>[];
     List<ActivityTourismInfo> newEventList = <ActivityTourismInfo>[];
     DateTime now = DateTime.now().toUtc();
     _eventList.forEach((event) {
-      print('${event.name}');
-      print('${event.startTime.toLocal()} - ${event.endTime.toLocal()}');
       if (event.endTime.isBefore(now)) {
         oldEventList.add(event);
       } else {
         newEventList.add(event);
       }
     });
-    oldEventList.sort((a, b) => a.endTime.isBefore(b.endTime) ? 1 : -1);
-    newEventList.sort((a, b) => a.endTime.isAfter(b.endTime) ? 1 : -1);
+    switch (_eventSortBy) {
+      case Constants.EVENT_SORT_BY_START_TIME:
+        newEventList.sort((a, b) => a.startTime.isAfter(b.startTime) ? 1 : -1);
+        if (_showExpiredEvents) {
+          oldEventList
+              .sort((a, b) => a.startTime.isBefore(b.startTime) ? 1 : -1);
+        }
+        break;
+      case Constants.EVENT_SORT_BY_END_TIME:
+        newEventList.sort((a, b) => a.endTime.isAfter(b.endTime) ? 1 : -1);
+        if (_showExpiredEvents) {
+          oldEventList.sort((a, b) => a.endTime.isBefore(b.endTime) ? 1 : -1);
+        }
+        break;
+    }
     _eventListForDisplay = newEventList;
     if (_showExpiredEvents) {
       _eventListForDisplay += oldEventList;
