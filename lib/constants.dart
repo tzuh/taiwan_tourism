@@ -66,6 +66,9 @@ class Constants {
   /// Dimensions
   static const double DIMEN_PRIMARY_MARGIN = 10;
 
+  /// Links
+  static const String LINK_PTX = 'https://ptx.transportdata.tw/PTX/';
+
   /// Preference
   static const bool PREF_SHOW_EXPIRED_EVENTS = true; // 顯示過期的活動
   static const int PREF_EVENT_SORT_BY = EVENT_SORT_BY_END_TIME; // 顯示過期的活動

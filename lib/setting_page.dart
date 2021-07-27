@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:package_info/package_info.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'constants.dart';
 import 'helper/preference_helper.dart';
 
@@ -146,11 +147,18 @@ class _SettingPageState extends State<SettingPage> {
                         fontWeight: FontWeight.bold,
                       ),
                       textAlign: TextAlign.center),
-                  Container(
-                    width: screenWidth * 0.6,
-                    child: Image.asset(
-                      'assets/images/ptx_logo.png',
-                      fit: BoxFit.scaleDown,
+                  GestureDetector(
+                    onTap: () async {
+                      await canLaunch(Constants.LINK_PTX)
+                          ? await launch(Constants.LINK_PTX)
+                          : throw 'Could not launch ${Constants.LINK_PTX}';
+                    }, // handle your image tap here
+                    child: Container(
+                      width: screenWidth * 0.6,
+                      child: Image.asset(
+                        'assets/images/ptx_logo.png',
+                        fit: BoxFit.scaleDown,
+                      ),
                     ),
                   ),
                 ],
