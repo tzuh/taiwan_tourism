@@ -113,39 +113,72 @@ class _EventPageState extends State<EventPage> {
                           textAlign: TextAlign.center,
                         ))),
                 Visibility(
-                    visible: _hasPhone || _hasWebsite,
+                    visible: _hasAddress || _hasWebsite || _hasPhone,
                     child: Container(
                       alignment: Alignment.center,
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           Visibility(
+                              visible: _hasAddress,
+                              child: IconButton(
+                                padding: EdgeInsets.all(
+                                    Constants.DIMEN_ICON_BUTTON / 6),
+                                alignment: Alignment.center,
+                                iconSize: Constants.DIMEN_ICON_BUTTON,
+                                onPressed: () async {
+                                  String address = widget.event.address;
+                                  if (!address.startsWith(widget.event.city)) {
+                                    address = '${widget.event.city} ' + address;
+                                  }
+                                  String query = Uri.encodeComponent(address);
+                                  String url =
+                                      'https://www.google.com/maps/search/?api=1&query=$query';
+                                  if (await launch(url)) {
+                                    throw 'Could not launch $url';
+                                  }
+                                },
+                                icon: Icon(
+                                  Icons.map_outlined,
+                                  color: Constants.COLOR_THEME_BLUE_GREY,
+                                  size: Constants.DIMEN_ICON_BUTTON,
+                                ),
+                              )),
+                          Visibility(
                               visible: _hasWebsite,
                               child: IconButton(
+                                padding: EdgeInsets.all(
+                                    Constants.DIMEN_ICON_BUTTON / 6),
+                                alignment: Alignment.center,
+                                iconSize: Constants.DIMEN_ICON_BUTTON,
                                 onPressed: () async {
-                                  await canLaunch(widget.event.websiteUrl)
-                                      ? await launch(widget.event.websiteUrl)
-                                      : throw 'Could not launch ${widget.event.websiteUrl}';
+                                  if (await launch(widget.event.websiteUrl)) {
+                                    throw 'Could not launch ${widget.event.websiteUrl}';
+                                  }
                                 },
                                 icon: Icon(
                                   Icons.web,
                                   color: Constants.COLOR_THEME_BLUE_GREY,
-                                  size: 30.0,
+                                  size: Constants.DIMEN_ICON_BUTTON,
                                 ),
                               )),
                           Visibility(
                               visible: _hasPhone,
                               child: IconButton(
+                                padding: EdgeInsets.all(
+                                    Constants.DIMEN_ICON_BUTTON / 6),
+                                alignment: Alignment.center,
+                                iconSize: Constants.DIMEN_ICON_BUTTON,
                                 onPressed: () async {
-                                  await canLaunch('tel:' + widget.event.phone)
-                                      ? await launch(
-                                          'tel:' + widget.event.phone)
-                                      : throw 'Could not launch ${widget.event.phone}';
+                                  if (await launch(
+                                      'tel:' + widget.event.phone)) {
+                                    throw 'Could not launch ${widget.event.phone}';
+                                  }
                                 },
                                 icon: Icon(
                                   Icons.phone,
                                   color: Constants.COLOR_THEME_BLUE_GREY,
-                                  size: 30.0,
+                                  size: Constants.DIMEN_ICON_BUTTON,
                                 ),
                               )),
                         ],
@@ -312,18 +345,30 @@ class _EventPageState extends State<EventPage> {
     var localStartDateTime = startDateTime.toLocal();
     var localEndDateTime = endDateTime.toLocal();
     var duration = endDateTime.difference(startDateTime).inSeconds;
-    if (duration < 86400) {
-      // 單日活動
-      return '${DateFormat('yyyy/M/d HH:mm').format(localStartDateTime)} - ${DateFormat('HH:mm').format(localEndDateTime)}';
-    } else if (duration == 86400) {
-      // 單日整天活動
-      return '${DateFormat('yyyy/M/d').format(localStartDateTime)}';
-    } else if ((duration / 86400 > 1) && (duration % 86400 == 0)) {
-      // 多日整天活動
-      return '${DateFormat('yyyy/M/d').format(localStartDateTime)} - ${DateFormat('yyyy/M/d').format(localEndDateTime.add(Duration(days: -1)))}';
+    int quotient = duration ~/ 86400;
+    int remainder = duration % 86400;
+    if (localStartDateTime.hour == 0 &&
+        localStartDateTime.minute == 0 &&
+        remainder == 0) {
+      // 全日活動
+      if (quotient <= 1) {
+        // 單日活動，僅顯示開始日期。
+        return '${DateFormat('yyyy/M/d').format(localStartDateTime)}';
+      } else {
+        // 多日活動，結束日期減一日顯示。
+        return '${DateFormat('yyyy/M/d').format(localStartDateTime)} - ${DateFormat('yyyy/M/d').format(localEndDateTime.add(Duration(days: -1)))}';
+      }
     } else {
-      // 有特定時間戳記的活動
-      return '${DateFormat('yyyy/M/d HH:mm').format(localStartDateTime)} - ${DateFormat('yyyy/M/d HH:mm').format(localEndDateTime)}';
+      // 非全日活動
+      if (localStartDateTime.year == localEndDateTime.year &&
+          localStartDateTime.month == localEndDateTime.month &&
+          localStartDateTime.day == localEndDateTime.day) {
+        // 同日活動
+        return '${DateFormat('yyyy/M/d HH:mm').format(localStartDateTime)} - ${DateFormat('HH:mm').format(localEndDateTime)}';
+      } else {
+        // 多日活動
+        return '${DateFormat('yyyy/M/d HH:mm').format(localStartDateTime)} - ${DateFormat('yyyy/M/d HH:mm').format(localEndDateTime)}';
+      }
     }
   }
 }

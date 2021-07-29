@@ -11,8 +11,8 @@ class SettingPage extends StatefulWidget {
 }
 
 class _SettingPageState extends State<SettingPage> {
-  bool _showExpiredEvents = Constants.PREF_SHOW_EXPIRED_EVENTS;
-  int _eventSortBy = Constants.PREF_EVENT_SORT_BY;
+  bool _showExpiredEvents = Constants.PREF_DEF_SHOW_EXPIRED_EVENTS;
+  int _eventSortBy = Constants.PREF_DEF_EVENT_SORT_BY;
   String _version = '';
 
   @override

@@ -34,8 +34,8 @@ class _HomePageState extends State<HomePage> {
   List<ActivityTourismInfo> _eventList = <ActivityTourismInfo>[];
   List<ActivityTourismInfo> _eventListForDisplay = <ActivityTourismInfo>[];
   var _alertStatus = AlertStatus.NONE;
-  bool _showExpiredEvents = Constants.PREF_SHOW_EXPIRED_EVENTS;
-  int _eventSortBy = Constants.PREF_EVENT_SORT_BY;
+  bool _showExpiredEvents = Constants.PREF_DEF_SHOW_EXPIRED_EVENTS;
+  int _eventSortBy = Constants.PREF_DEF_EVENT_SORT_BY;
   bool _showNoContent = false;
 
   @override
@@ -110,14 +110,15 @@ class _HomePageState extends State<HomePage> {
                   .then((value) {
                 PreferenceHelper.getPrefs().then((prefs) {
                   var showExpiredEvents =
-                      prefs.getBool(PreferenceHelper.KEY_SHOW_EXPIRED_EVENTS);
+                      prefs.getBool(PreferenceHelper.KEY_SHOW_EXPIRED_EVENTS) ??
+                          Constants.PREF_DEF_SHOW_EXPIRED_EVENTS;
                   var eventSortBy =
-                      prefs.getInt(PreferenceHelper.KEY_EVENT_SORT_BY);
+                      prefs.getInt(PreferenceHelper.KEY_EVENT_SORT_BY) ??
+                          Constants.PREF_DEF_EVENT_SORT_BY;
                   if ((_showExpiredEvents != showExpiredEvents) ||
                       (_eventSortBy != eventSortBy)) {
-                    _showExpiredEvents =
-                        showExpiredEvents ?? Constants.PREF_SHOW_EXPIRED_EVENTS;
-                    _eventSortBy = eventSortBy ?? Constants.PREF_EVENT_SORT_BY;
+                    _showExpiredEvents = showExpiredEvents;
+                    _eventSortBy = eventSortBy;
                     sortEventsBySetting();
                     setState(() {});
                   }
@@ -336,7 +337,6 @@ class _HomePageState extends State<HomePage> {
   }
 
   void sortEventsBySetting() {
-    print('refreshEventsByOrder');
     _eventListForDisplay.clear();
     List<ActivityTourismInfo> oldEventList = <ActivityTourismInfo>[];
     List<ActivityTourismInfo> newEventList = <ActivityTourismInfo>[];
@@ -426,15 +426,30 @@ class _HomePageState extends State<HomePage> {
     var localStartDateTime = startDateTime.toLocal();
     var localEndDateTime = endDateTime.toLocal();
     var duration = endDateTime.difference(startDateTime).inSeconds;
-    if (duration <= 86400) {
-      // 單日活動
-      return '${DateFormat('yyyy/M/d').format(localStartDateTime)}';
-    } else if ((duration / 86400 > 1) && (duration % 86400 == 0)) {
-      // 多日整天活動
-      return '${DateFormat('yyyy/M/d').format(localStartDateTime)} - ${DateFormat('yyyy/M/d').format(localEndDateTime.add(Duration(days: -1)))}';
+    int quotient = duration ~/ 86400;
+    int remainder = duration % 86400;
+    if (localStartDateTime.hour == 0 &&
+        localStartDateTime.minute == 0 &&
+        remainder == 0) {
+      // 全日活動
+      if (quotient <= 1) {
+        // 單日活動，僅顯示開始日期。
+        return '${DateFormat('yyyy/M/d').format(localStartDateTime)}';
+      } else {
+        // 多日活動，結束日期減一日顯示。
+        return '${DateFormat('yyyy/M/d').format(localStartDateTime)} - ${DateFormat('yyyy/M/d').format(localEndDateTime.add(Duration(days: -1)))}';
+      }
     } else {
-      // 有特定時間戳記的活動
-      return '${DateFormat('yyyy/M/d').format(localStartDateTime)} - ${DateFormat('yyyy/M/d').format(localEndDateTime)}';
+      // 非全日活動
+      if (localStartDateTime.year == localEndDateTime.year &&
+          localStartDateTime.month == localEndDateTime.month &&
+          localStartDateTime.day == localEndDateTime.day) {
+        // 同日活動
+        return '${DateFormat('yyyy/M/d').format(localStartDateTime)}';
+      } else {
+        // 多日活動
+        return '${DateFormat('yyyy/M/d').format(localStartDateTime)} - ${DateFormat('yyyy/M/d').format(localEndDateTime)}';
+      }
     }
   }
 }

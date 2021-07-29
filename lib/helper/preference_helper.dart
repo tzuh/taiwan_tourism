@@ -12,7 +12,7 @@ class PreferenceHelper {
   static Future<bool> getShowExpiredEvents() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     return prefs.getBool(KEY_SHOW_EXPIRED_EVENTS) ??
-        Constants.PREF_SHOW_EXPIRED_EVENTS;
+        Constants.PREF_DEF_SHOW_EXPIRED_EVENTS;
   }
 
   static Future<void> setShowExpiredEvents(bool value) async {
@@ -22,7 +22,7 @@ class PreferenceHelper {
 
   static Future<int> getEventSortBy() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    return prefs.getInt(KEY_EVENT_SORT_BY) ?? Constants.PREF_EVENT_SORT_BY;
+    return prefs.getInt(KEY_EVENT_SORT_BY) ?? Constants.PREF_DEF_EVENT_SORT_BY;
   }
 
   static Future<void> setEventSortBy(int value) async {

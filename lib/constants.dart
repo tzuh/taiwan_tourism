@@ -65,13 +65,14 @@ class Constants {
 
   /// Dimensions
   static const double DIMEN_PRIMARY_MARGIN = 10;
+  static const double DIMEN_ICON_BUTTON = 40;
 
   /// Links
   static const String LINK_PTX = 'https://ptx.transportdata.tw/PTX/';
 
-  /// Preference
-  static const bool PREF_SHOW_EXPIRED_EVENTS = true; // 顯示過期的活動
-  static const int PREF_EVENT_SORT_BY = EVENT_SORT_BY_END_TIME; // 顯示過期的活動
+  /// Preference defaults
+  static const bool PREF_DEF_SHOW_EXPIRED_EVENTS = true; // 顯示過期的活動
+  static const int PREF_DEF_EVENT_SORT_BY = EVENT_SORT_BY_END_TIME; // 顯示過期的活動
 
   /// Event sort by
   static const int EVENT_SORT_BY_START_TIME = 0; // 依開始日期排序
