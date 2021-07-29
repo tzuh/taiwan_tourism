@@ -271,18 +271,21 @@ class _HomePageState extends State<HomePage> {
               )
             ]),
           ),
-          Container(
-            padding: EdgeInsets.all(Constants.DIMEN_PRIMARY_MARGIN / 2),
-            width: double.infinity,
-            color: Constants.COLOR_THEME_BLUE_GREY,
-            alignment: Alignment.center,
-            child: Text(
-              '${Constants.STRING_PTX}',
-              style: TextStyle(
-                fontSize: 12,
-                color: Constants.COLOR_THEME_WHITE,
+          Visibility(
+            visible: false,
+            child: Container(
+              padding: EdgeInsets.all(Constants.DIMEN_PRIMARY_MARGIN / 2),
+              width: double.infinity,
+              color: Constants.COLOR_THEME_BLUE_GREY,
+              alignment: Alignment.center,
+              child: Text(
+                '${Constants.STRING_PTX}',
+                style: TextStyle(
+                  fontSize: 12,
+                  color: Constants.COLOR_THEME_WHITE,
+                ),
+                textAlign: TextAlign.center,
               ),
-              textAlign: TextAlign.center,
             ),
           )
         ],
