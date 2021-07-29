@@ -226,7 +226,7 @@ class _EventPageState extends State<EventPage> {
                               child: Text(
                                 '${widget.event.picture.pictureDescription1}',
                                 style: TextStyle(
-                                  fontSize: 12,
+                                  fontSize: 14,
                                   color: Constants.COLOR_THEME_BLACK,
                                 ),
                                 textAlign: TextAlign.center,
@@ -263,7 +263,7 @@ class _EventPageState extends State<EventPage> {
                               child: Text(
                                 '${widget.event.picture.pictureDescription2}',
                                 style: TextStyle(
-                                  fontSize: 12,
+                                  fontSize: 14,
                                   color: Constants.COLOR_THEME_BLACK,
                                 ),
                                 textAlign: TextAlign.center,
@@ -300,7 +300,7 @@ class _EventPageState extends State<EventPage> {
                               child: Text(
                                 '${widget.event.picture.pictureDescription3}',
                                 style: TextStyle(
-                                  fontSize: 12,
+                                  fontSize: 14,
                                   color: Constants.COLOR_THEME_BLACK,
                                 ),
                                 textAlign: TextAlign.center,

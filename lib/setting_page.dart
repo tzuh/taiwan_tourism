@@ -122,7 +122,6 @@ class _SettingPageState extends State<SettingPage> {
                       style: TextStyle(
                         fontSize: 20,
                         color: Constants.COLOR_THEME_BLACK,
-                        fontWeight: FontWeight.bold,
                       ),
                       textAlign: TextAlign.center),
                   Text('$_version',
@@ -144,7 +143,6 @@ class _SettingPageState extends State<SettingPage> {
                       style: TextStyle(
                         fontSize: 20,
                         color: Constants.COLOR_THEME_BLACK,
-                        fontWeight: FontWeight.bold,
                       ),
                       textAlign: TextAlign.center),
                   GestureDetector(
