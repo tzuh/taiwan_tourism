@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 
 import 'constants.dart';
@@ -14,11 +16,17 @@ class _SelectionPageState extends State<SelectionPage> {
   var _lastPressedBackButton = DateTime.now()
       .toUtc()
       .add(Duration(seconds: -Constants.SECONDS_FOR_QUIT));
+  late double _screenDiagonal;
+  late double _scale;
 
   @override
   Widget build(BuildContext context) {
     var screenHeight = MediaQuery.of(context).size.height;
     var screenWidth = MediaQuery.of(context).size.width;
+    _screenDiagonal = sqrt(pow(screenHeight, 2) + pow(screenWidth, 2));
+    _scale = _screenDiagonal / 900;
+
+    print('($screenHeight,$screenWidth) $_screenDiagonal');
     return WillPopScope(
         onWillPop: () async {
           var now = DateTime.now().toUtc();
@@ -33,7 +41,9 @@ class _SelectionPageState extends State<SelectionPage> {
           }
         },
         child: Scaffold(
+          backgroundColor: Constants.COLOR_THEME_BLUE_GREY,
           body: Container(
+              margin: EdgeInsets.symmetric(vertical: screenHeight / 30),
               decoration: BoxDecoration(
                 color: Constants.COLOR_THEME_BLUE_GREY,
                 image: DecorationImage(
@@ -43,10 +53,10 @@ class _SelectionPageState extends State<SelectionPage> {
               ),
               child: Container(
                   margin: EdgeInsets.only(
-                      left: screenWidth * 0.1,
-                      right: screenWidth * 0.1,
-                      top: screenHeight * 0.09,
-                      bottom: screenHeight * 0.08),
+                      left: screenWidth * 0.07,
+                      right: screenWidth * 0.07,
+                      top: screenHeight * 0.03,
+                      bottom: screenHeight * 0.01),
                   child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                       children: [
@@ -156,10 +166,13 @@ class _SelectionPageState extends State<SelectionPage> {
   OutlinedButton buildCityButton(String displayName, String urlName) {
     return OutlinedButton(
         style: ButtonStyle(
-          padding: MaterialStateProperty.all<EdgeInsets>(
-              EdgeInsets.only(left: 15, right: 15, top: 5, bottom: 7)),
+          padding: MaterialStateProperty.all<EdgeInsets>(EdgeInsets.only(
+              left: 15 * _scale,
+              right: 15 * _scale,
+              top: 5 * _scale,
+              bottom: 7 * _scale)),
           shape: MaterialStateProperty.all<RoundedRectangleBorder>(
-              RoundedRectangleBorder(borderRadius: BorderRadius.circular(10))),
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(8))),
           side: MaterialStateProperty.all<BorderSide>(
               BorderSide(color: Constants.COLOR_THEME_WHITE, width: 1)),
           backgroundColor: MaterialStateProperty.all<Color>(

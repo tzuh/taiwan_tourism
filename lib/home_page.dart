@@ -409,7 +409,7 @@ class _HomePageState extends State<HomePage> {
     var k = utf8.encode(envK.substring(0, 3) +
         codec(envK.substring(3), 's7vKtxHFA3EpBryNI3AH1e9K'));
     var utcTime =
-        DateFormat('EEE, d MMM y HH:mm:ss').format(DateTime.now().toUtc());
+        DateFormat('EEE, dd MMM y HH:mm:ss').format(DateTime.now().toUtc());
     var signature = base64.encode(
         Hmac(sha1, k).convert(utf8.encode('x-date: $utcTime GMT')).bytes);
 
