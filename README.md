@@ -1,16 +1,10 @@
-# taiwantourism
+# Taiwan Tourism (旅遊臺灣)
 
-A new Flutter project.
+![logo](.\android\app\src\main\res\mipmap-xhdpi\ic_launcher.png)
 
-## Getting Started
+An app integrated with [PTX (Public Transport Data eXchange)](https://ptx.transportdata.tw/PTX/) API from Taiwan MOTC (Ministry of Transportation and Communications) to fetch tourism information.
 
-This project is a starting point for a Flutter application.
+此應用程式介接臺灣交通部[公共運輸整合資訊流通服務平臺](https://ptx.transportdata.tw/PTX/)的開放式API，用以即時查詢各縣市的觀光活動資訊。
 
-A few resources to get you started if this is your first Flutter project:
-
-- [Lab: Write your first Flutter app](https://flutter.dev/docs/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://flutter.dev/docs/cookbook)
-
-For help getting started with Flutter, view our
-[online documentation](https://flutter.dev/docs), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+## Screenshots (畫面展示)
+![](.\screenshots.gif)

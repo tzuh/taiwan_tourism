@@ -138,6 +138,16 @@ class _HomePageState extends State<HomePage> {
                       vertical: Constants.DIMEN_PRIMARY_MARGIN / 2),
                   itemCount: _eventListForDisplay.length,
                   itemBuilder: (BuildContext context, int index) {
+                    bool isExpired = _eventListForDisplay[index]
+                        .endTime
+                        .isBefore(DateTime.now().toUtc());
+                    var localStartTime =
+                        _eventListForDisplay[index].startTime.toLocal();
+                    int startDurationInDays = DateTime(localStartTime.year,
+                                localStartTime.month, localStartTime.day)
+                            .difference(DateTime.now())
+                            .inDays +
+                        1;
                     return InkWell(
                         onTap: () {
                           Navigator.push(
@@ -233,20 +243,42 @@ class _HomePageState extends State<HomePage> {
                                           backgroundColor: Colors.transparent),
                                       maxLines: 1,
                                     ),
-                                    Text(
-                                      getEventDateString(
-                                          _eventListForDisplay[index].startTime,
-                                          _eventListForDisplay[index].endTime),
-                                      style: TextStyle(
-                                          fontSize: 14,
-                                          color: _eventListForDisplay[index]
-                                                  .endTime
-                                                  .isBefore(
-                                                      DateTime.now().toUtc())
-                                              ? Constants.COLOR_THEME_RED
-                                              : Theme.of(context)
-                                                  .scaffoldBackgroundColor),
-                                      maxLines: 1,
+                                    Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        Text(
+                                          getEventDateString(
+                                              _eventListForDisplay[index]
+                                                  .startTime,
+                                              _eventListForDisplay[index]
+                                                  .endTime),
+                                          style: TextStyle(
+                                              fontSize: 14,
+                                              color: isExpired
+                                                  ? Constants.COLOR_THEME_RED
+                                                  : Theme.of(context)
+                                                      .scaffoldBackgroundColor),
+                                          maxLines: 1,
+                                        ),
+                                        Text(
+                                          isExpired
+                                              ? Constants.STRING_EVENT_EXPIRED
+                                              : (startDurationInDays >= 1)
+                                                  ? (startDurationInDays ~/ 7 >
+                                                          0)
+                                                      ? '${startDurationInDays ~/ 7}${Constants.STRING_BEGIN_AFTER_WEEKS}'
+                                                      : '$startDurationInDays${Constants.STRING_BEGIN_AFTER_DAYS}'
+                                                  : '${Constants.STRING_EVENT_RUNNING}',
+                                          style: TextStyle(
+                                              fontSize: 14,
+                                              color: isExpired
+                                                  ? Constants.COLOR_THEME_RED
+                                                  : Theme.of(context)
+                                                      .scaffoldBackgroundColor),
+                                          maxLines: 1,
+                                        ),
+                                      ],
                                     ),
                                   ],
                                 ),

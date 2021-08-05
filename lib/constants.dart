@@ -71,8 +71,8 @@ class Constants {
   static const String LINK_PTX = 'https://ptx.transportdata.tw/PTX/';
 
   /// Preference defaults
-  static const bool PREF_DEF_SHOW_EXPIRED_EVENTS = true; // 顯示過期的活動
-  static const int PREF_DEF_EVENT_SORT_BY = EVENT_SORT_BY_END_TIME; // 顯示過期的活動
+  static const bool PREF_DEF_SHOW_EXPIRED_EVENTS = false; // 顯示過期的活動
+  static const int PREF_DEF_EVENT_SORT_BY = EVENT_SORT_BY_START_TIME; // 依開始日期排序
 
   /// Event sort by
   static const int EVENT_SORT_BY_START_TIME = 0; // 依開始日期排序
@@ -94,8 +94,8 @@ class Constants {
   static const String STRING_BACK = '返回';
   static const String STRING_APP_VERSION = 'App 版本';
   static const String STRING_REFERENCES = '資料來源';
-  static const String STRING_ORGANIZER = '主辦單位';
-  static const String STRING_UPDATE_TIME = '最後更新時間';
+  static const String STRING_ORGANIZER = '主辦單位：';
+  static const String STRING_UPDATE_TIME = '最後更新時間：';
   static const String STRING_OFFLINE = '無法連線';
   static const String STRING_CHECK_CONNECTION = '請檢查網路設定';
   static const String STRING_PTX = '交通部 PTX | (02)2349-2803 | ptx@motc.gov.tw';
@@ -107,4 +107,8 @@ class Constants {
   static const String STRING_SHOW_EXPIRED_EVENTS = '顯示過期的活動';
   static const String STRING_SORT_BY_START_TIME = '依開始日期排序';
   static const String STRING_SORT_BY_END_TIME = '依結束日期排序';
+  static const String STRING_EVENT_EXPIRED = '活動已結束';
+  static const String STRING_EVENT_RUNNING = '活動進行中';
+  static const String STRING_BEGIN_AFTER_DAYS = '天後開始';
+  static const String STRING_BEGIN_AFTER_WEEKS = '週後開始';
 }

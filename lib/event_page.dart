@@ -191,7 +191,7 @@ class _EventPageState extends State<EventPage> {
                             horizontal: Constants.DIMEN_PRIMARY_MARGIN,
                             vertical: Constants.DIMEN_PRIMARY_MARGIN / 2),
                         child: SelectableText(
-                          '${Constants.STRING_ORGANIZER}: ${widget.event.organizer}',
+                          '${Constants.STRING_ORGANIZER}${widget.event.organizer}',
                           style: TextStyle(
                             fontSize: 16,
                             color: Constants.COLOR_THEME_BLACK,
@@ -327,13 +327,12 @@ class _EventPageState extends State<EventPage> {
                         horizontal: Constants.DIMEN_PRIMARY_MARGIN,
                         vertical: Constants.DIMEN_PRIMARY_MARGIN / 2),
                     child: Text(
-                      '${Constants.STRING_UPDATE_TIME}: ${DateFormat('yyyy/M/d').format(widget.event.srcUpdateTime.toLocal())}',
+                      '${Constants.STRING_UPDATE_TIME}${DateFormat('yyyy/M/d').format(widget.event.srcUpdateTime.toLocal())}',
                       style: TextStyle(
                         fontSize: 16,
                         color: Constants.COLOR_THEME_BLACK,
                       ),
                       textAlign: TextAlign.center,
-                      maxLines: 2,
                     )),
               ],
             ),

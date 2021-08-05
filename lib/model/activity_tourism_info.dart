@@ -41,6 +41,16 @@ class ActivityTourismInfo {
   });
 
   factory ActivityTourismInfo.fromPtx(PtxActivityTourismInfo ptx) {
+    String fixString(String? str) {
+      if (str == null || str.trim().isEmpty) {
+        return '';
+      } else if (str.trim() == '無') {
+        return '';
+      } else {
+        return str.trim();
+      }
+    }
+
     String fixUrl(String url) {
       if (url.isNotEmpty && url.split('/').length > 0) {
         var strList = url.split('/');
@@ -61,10 +71,10 @@ class ActivityTourismInfo {
       return phoneNum;
     }
 
-    DateTime rawStartTime = new DateFormat('yyyy-MM-ddTHH:mm:ss')
-        .parse(ptx.startTime?.trim() ?? '');
+    DateTime rawStartTime =
+        new DateFormat('yyyy-MM-ddTHH:mm:ss').parse(fixString(ptx.startTime));
     DateTime rawEndTime =
-        new DateFormat('yyyy-MM-ddTHH:mm:ss').parse(ptx.endTime?.trim() ?? '');
+        new DateFormat('yyyy-MM-ddTHH:mm:ss').parse(fixString(ptx.endTime));
     DateTime fixedStartTime;
     DateTime fixedEndTime;
     var duration = rawEndTime.difference(rawStartTime).inSeconds;
@@ -113,37 +123,37 @@ class ActivityTourismInfo {
     }
 
     return ActivityTourismInfo(
-        id: ptx.id?.trim() ?? '',
-        name: ptx.name?.trim() ?? '',
-        description: ptx.description?.trim() ?? '',
-        location: ptx.location?.trim() ?? '',
-        address: ptx.address?.trim() ?? '',
-        phone: fixPhoneNumber(ptx.phone?.trim() ?? ''),
-        organizer: ptx.organizer?.trim() ?? '',
+        id: fixString(ptx.id),
+        name: fixString(ptx.name),
+        description: fixString(ptx.description),
+        location: fixString(ptx.location),
+        address: fixString(ptx.address),
+        phone: fixPhoneNumber(fixString(ptx.phone)),
+        organizer: fixString(ptx.organizer),
         startTime: fixedStartTime.toUtc(),
         endTime: fixedEndTime.toUtc(),
-        websiteUrl: ptx.websiteUrl?.trim() ?? '',
+        websiteUrl: fixString(ptx.websiteUrl),
         picture: new TourismPicture(
-          pictureUrl1: fixUrl(ptx.picture!.pictureUrl1?.trim() ?? ''),
-          pictureDescription1: ptx.picture!.pictureDescription1?.trim() ?? '',
-          pictureUrl2: fixUrl(ptx.picture!.pictureUrl2?.trim() ?? ''),
-          pictureDescription2: ptx.picture!.pictureDescription2?.trim() ?? '',
-          pictureUrl3: fixUrl(ptx.picture!.pictureUrl3?.trim() ?? ''),
-          pictureDescription3: ptx.picture!.pictureDescription3?.trim() ?? '',
+          pictureUrl1: fixUrl(fixString(ptx.picture!.pictureUrl1)),
+          pictureDescription1: fixString(ptx.picture!.pictureDescription1),
+          pictureUrl2: fixUrl(fixString(ptx.picture!.pictureUrl2)),
+          pictureDescription2: fixString(ptx.picture!.pictureDescription2),
+          pictureUrl3: fixUrl(fixString(ptx.picture!.pictureUrl3)),
+          pictureDescription3: fixString(ptx.picture!.pictureDescription3),
         ),
         position: new PointType(
           positionLon: ptx.position!.positionLon ?? 0,
           positionLat: ptx.position!.positionLat ?? 0,
-          geoHash: ptx.position!.geoHash?.trim() ?? '',
+          geoHash: fixString(ptx.position!.geoHash),
         ),
-        mapUrl: ptx.mapUrl?.trim() ?? '',
-        remarks: ptx.remarks?.trim() ?? '',
-        city: ptx.city?.trim() ?? '',
+        mapUrl: fixString(ptx.mapUrl),
+        remarks: fixString(ptx.remarks),
+        city: fixString(ptx.city),
         srcUpdateTime: new DateFormat('yyyy-MM-ddTHH:mm:ss')
-            .parse(ptx.srcUpdateTime?.trim() ?? '')
+            .parse(fixString(ptx.srcUpdateTime))
             .toUtc(),
         updateTime: new DateFormat('yyyy-MM-ddTHH:mm:ss')
-            .parse(ptx.updateTime?.trim() ?? '')
+            .parse(fixString(ptx.updateTime))
             .toUtc());
   }
 }
