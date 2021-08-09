@@ -6,10 +6,10 @@ import 'package:flutter/material.dart';
 import 'package:network_to_file_image/network_to_file_image.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'constants.dart';
-import 'model/activity_tourism_info.dart';
+import 'model/event_model.dart';
 
 class EventPage extends StatefulWidget {
-  final ActivityTourismInfo event;
+  final EventModel event;
   final Directory tempDir;
 
   EventPage({required this.event, required this.tempDir});
@@ -24,6 +24,12 @@ class _EventPageState extends State<EventPage> {
     bool _hasAddress = widget.event.address.isNotEmpty;
     bool _hasPhone = widget.event.phone.isNotEmpty;
     bool _hasWebsite = widget.event.websiteUrl.isNotEmpty;
+    bool hasImage1 = widget.event.picture.ptxPictureList.length >= 1 &&
+        widget.event.picture.ptxPictureList[0].url.isNotEmpty;
+    bool hasImage2 = widget.event.picture.ptxPictureList.length >= 2 &&
+        widget.event.picture.ptxPictureList[1].url.isNotEmpty;
+    bool hasImage3 = widget.event.picture.ptxPictureList.length >= 3 &&
+        widget.event.picture.ptxPictureList[2].url.isNotEmpty;
     return Scaffold(
         backgroundColor: Constants.COLOR_THEME_DARK_WHITE,
         appBar: AppBar(
@@ -43,7 +49,7 @@ class _EventPageState extends State<EventPage> {
                 )
               : null,
           title: Text(
-            Constants.STRING_ACTIVITY,
+            Constants.STRING_EVENT,
             style: TextStyle(fontSize: 20, color: Constants.COLOR_THEME_WHITE),
             textAlign: TextAlign.center,
           ),
@@ -199,7 +205,7 @@ class _EventPageState extends State<EventPage> {
                           textAlign: TextAlign.center,
                         ))),
                 Visibility(
-                    visible: widget.event.picture.pictureUrl1.isNotEmpty,
+                    visible: hasImage1,
                     child: Container(
                       margin: EdgeInsets.symmetric(
                           horizontal: Constants.DIMEN_PRIMARY_MARGIN,
@@ -214,9 +220,11 @@ class _EventPageState extends State<EventPage> {
                         children: [
                           Image(
                             image: NetworkToFileImage(
-                              url: widget.event.picture.pictureUrl1,
+                              url: hasImage1
+                                  ? widget.event.picture.ptxPictureList[0].url
+                                  : '',
                               file: File(join(widget.tempDir.path,
-                                  '${widget.event.id}_a1.jpg')),
+                                  '${widget.event.srcId}_a1.jpg')),
                               debug: false,
                             ),
                           ),
@@ -224,7 +232,9 @@ class _EventPageState extends State<EventPage> {
                               margin: EdgeInsets.only(
                                   top: Constants.DIMEN_PRIMARY_MARGIN / 2),
                               child: Text(
-                                '${widget.event.picture.pictureDescription1}',
+                                hasImage1
+                                    ? '${widget.event.picture.ptxPictureList[0].description}'
+                                    : '',
                                 style: TextStyle(
                                   fontSize: 14,
                                   color: Constants.COLOR_THEME_BLACK,
@@ -236,7 +246,7 @@ class _EventPageState extends State<EventPage> {
                       ),
                     )),
                 Visibility(
-                    visible: widget.event.picture.pictureUrl2.isNotEmpty,
+                    visible: hasImage2,
                     child: Container(
                       margin: EdgeInsets.symmetric(
                           horizontal: Constants.DIMEN_PRIMARY_MARGIN,
@@ -251,9 +261,11 @@ class _EventPageState extends State<EventPage> {
                         children: [
                           Image(
                             image: NetworkToFileImage(
-                              url: widget.event.picture.pictureUrl2,
+                              url: hasImage2
+                                  ? widget.event.picture.ptxPictureList[1].url
+                                  : '',
                               file: File(join(widget.tempDir.path,
-                                  '${widget.event.id}_a2.jpg')),
+                                  '${widget.event.srcId}_a2.jpg')),
                               debug: false,
                             ),
                           ),
@@ -261,7 +273,9 @@ class _EventPageState extends State<EventPage> {
                               margin: EdgeInsets.only(
                                   top: Constants.DIMEN_PRIMARY_MARGIN / 2),
                               child: Text(
-                                '${widget.event.picture.pictureDescription2}',
+                                hasImage2
+                                    ? '${widget.event.picture.ptxPictureList[1].description}'
+                                    : '',
                                 style: TextStyle(
                                   fontSize: 14,
                                   color: Constants.COLOR_THEME_BLACK,
@@ -273,7 +287,7 @@ class _EventPageState extends State<EventPage> {
                       ),
                     )),
                 Visibility(
-                    visible: widget.event.picture.pictureUrl3.isNotEmpty,
+                    visible: hasImage3,
                     child: Container(
                       margin: EdgeInsets.symmetric(
                           horizontal: Constants.DIMEN_PRIMARY_MARGIN,
@@ -288,9 +302,11 @@ class _EventPageState extends State<EventPage> {
                         children: [
                           Image(
                             image: NetworkToFileImage(
-                              url: widget.event.picture.pictureUrl3,
+                              url: hasImage3
+                                  ? widget.event.picture.ptxPictureList[2].url
+                                  : '',
                               file: File(join(widget.tempDir.path,
-                                  '${widget.event.id}_a3.jpg')),
+                                  '${widget.event.srcId}_a3.jpg')),
                               debug: false,
                             ),
                           ),
@@ -298,7 +314,9 @@ class _EventPageState extends State<EventPage> {
                               margin: EdgeInsets.only(
                                   top: Constants.DIMEN_PRIMARY_MARGIN / 2),
                               child: Text(
-                                '${widget.event.picture.pictureDescription3}',
+                                hasImage3
+                                    ? '${widget.event.picture.ptxPictureList[2].description}'
+                                    : '',
                                 style: TextStyle(
                                   fontSize: 14,
                                   color: Constants.COLOR_THEME_BLACK,
@@ -327,7 +345,7 @@ class _EventPageState extends State<EventPage> {
                         horizontal: Constants.DIMEN_PRIMARY_MARGIN,
                         vertical: Constants.DIMEN_PRIMARY_MARGIN / 2),
                     child: Text(
-                      '${Constants.STRING_UPDATE_TIME}${DateFormat('yyyy/M/d').format(widget.event.srcUpdateTime.toLocal())}',
+                      '${Constants.STRING_UPDATE_TIME}${DateFormat('yyyy/M/d').format(widget.event.originalUpdateTime.toLocal())}',
                       style: TextStyle(
                         fontSize: 16,
                         color: Constants.COLOR_THEME_BLACK,

@@ -1,22 +1,20 @@
 import 'dart:io';
-import 'package:http/http.dart';
 import 'package:path/path.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'dart:convert';
-import 'package:http/http.dart' as http;
-import 'package:crypto/crypto.dart';
 import 'package:intl/intl.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:taiwantourism/event_page.dart';
-import 'package:taiwantourism/model/activity_tourism_info.dart';
+import 'package:taiwantourism/model/event_model.dart';
 import 'package:taiwantourism/setting_page.dart';
 import 'package:taiwantourism/util/network_util.dart';
 import 'constants.dart';
+import 'helper/database_helper.dart';
 import 'helper/preference_helper.dart';
+import 'helper/ptx_helper.dart';
 import 'model/ptx_activity_tourism_info.dart';
 import 'package:network_to_file_image/network_to_file_image.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 enum AlertStatus { NONE, IS_OFFLINE, SEVER_ERROR }
 
@@ -31,8 +29,8 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   late Directory _tempDir;
-  List<ActivityTourismInfo> _eventList = <ActivityTourismInfo>[];
-  List<ActivityTourismInfo> _eventListForDisplay = <ActivityTourismInfo>[];
+  List<EventModel> _eventList = <EventModel>[];
+  List<EventModel> _eventListForDisplay = <EventModel>[];
   var _alertStatus = AlertStatus.NONE;
   bool _showExpiredEvents = Constants.PREF_DEF_SHOW_EXPIRED_EVENTS;
   int _eventSortBy = Constants.PREF_DEF_EVENT_SORT_BY;
@@ -138,23 +136,24 @@ class _HomePageState extends State<HomePage> {
                       vertical: Constants.DIMEN_PRIMARY_MARGIN / 2),
                   itemCount: _eventListForDisplay.length,
                   itemBuilder: (BuildContext context, int index) {
-                    bool isExpired = _eventListForDisplay[index]
-                        .endTime
-                        .isBefore(DateTime.now().toUtc());
-                    var localStartTime =
-                        _eventListForDisplay[index].startTime.toLocal();
+                    var thisEvent = _eventListForDisplay[index];
+                    var now = DateTime.now();
+                    bool isExpired = thisEvent.endTime.isBefore(now.toUtc());
+                    var localStartTime = thisEvent.startTime.toLocal();
                     int startDurationInDays = DateTime(localStartTime.year,
-                                localStartTime.month, localStartTime.day)
-                            .difference(DateTime.now())
-                            .inDays +
-                        1;
+                            localStartTime.month, localStartTime.day)
+                        .difference(DateTime(now.year, now.month, now.day))
+                        .inDays;
+                    bool hasImage1 =
+                        thisEvent.picture.ptxPictureList.length >= 1 &&
+                            thisEvent.picture.ptxPictureList[0].url.isNotEmpty;
                     return InkWell(
                         onTap: () {
                           Navigator.push(
                               context,
                               MaterialPageRoute(
                                   builder: (context) => EventPage(
-                                        event: _eventListForDisplay[index],
+                                        event: thisEvent,
                                         tempDir: _tempDir,
                                       ))).then((value) => setState(() {}));
                         },
@@ -170,16 +169,12 @@ class _HomePageState extends State<HomePage> {
                               width: 1,
                             ),
                             image: DecorationImage(
-                              image: _eventListForDisplay[index]
-                                      .picture
-                                      .pictureUrl1
-                                      .isNotEmpty
+                              image: hasImage1
                                   ? NetworkToFileImage(
-                                      url: _eventListForDisplay[index]
-                                          .picture
-                                          .pictureUrl1,
+                                      url: thisEvent
+                                          .picture.ptxPictureList[0].url,
                                       file: File(join(_tempDir.path,
-                                          '${_eventListForDisplay[index].id}_a1.jpg')),
+                                          '${thisEvent.srcId}_a1.jpg')),
                                       debug: false,
                                     )
                                   : Image.asset('assets/images/card_bg.jpg')
@@ -226,7 +221,7 @@ class _HomePageState extends State<HomePage> {
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     Text(
-                                      '${_eventListForDisplay[index].name}',
+                                      '${thisEvent.name}',
                                       style: TextStyle(
                                           fontSize: 16,
                                           color: Theme.of(context)
@@ -235,7 +230,7 @@ class _HomePageState extends State<HomePage> {
                                       maxLines: 2,
                                     ),
                                     Text(
-                                      _eventListForDisplay[index].location,
+                                      thisEvent.location,
                                       style: TextStyle(
                                           fontSize: 14,
                                           color: Theme.of(context)
@@ -249,10 +244,8 @@ class _HomePageState extends State<HomePage> {
                                       children: [
                                         Text(
                                           getEventDateString(
-                                              _eventListForDisplay[index]
-                                                  .startTime,
-                                              _eventListForDisplay[index]
-                                                  .endTime),
+                                              thisEvent.startTime,
+                                              thisEvent.endTime),
                                           style: TextStyle(
                                               fontSize: 14,
                                               color: isExpired
@@ -304,14 +297,14 @@ class _HomePageState extends State<HomePage> {
             ]),
           ),
           Visibility(
-            visible: false,
+            visible: true,
             child: Container(
               padding: EdgeInsets.all(Constants.DIMEN_PRIMARY_MARGIN / 2),
               width: double.infinity,
               color: Constants.COLOR_THEME_BLUE_GREY,
               alignment: Alignment.center,
               child: Text(
-                '${Constants.STRING_PTX}',
+                '${Constants.STRING_DISCLAIMER}',
                 style: TextStyle(
                   fontSize: 12,
                   color: Constants.COLOR_THEME_WHITE,
@@ -332,49 +325,21 @@ class _HomePageState extends State<HomePage> {
   }
 
   void getEvents(String city) {
-    getPtxDataByCity(city).then((response) {
-      print('PTX status code: ${response.statusCode}');
-      if (response.statusCode == Constants.HTTP_STATUS_CODE_OK) {
-        // Parse data
-        List<PtxActivityTourismInfo> list = List<PtxActivityTourismInfo>.from(
-            json
-                .decode(response.body)
-                .map((s) => PtxActivityTourismInfo.fromJson(s)));
-        // Remove duplicate data
-        List<ActivityTourismInfo> rawEventList = <ActivityTourismInfo>[];
-        var checkedList = Map<String, DateTime>();
-        list.forEach((ptx) {
-          var event = ActivityTourismInfo.fromPtx(ptx);
-          rawEventList.add(event);
-          if (checkedList.containsKey(event.id)) {
-            if (checkedList[event.id]!.isBefore(event.updateTime)) {
-              checkedList[event.id] = event.updateTime;
-            }
-          } else {
-            checkedList[event.id] = event.updateTime;
-          }
-        });
-        _eventList.clear();
-        rawEventList.forEach((event) {
-          if (checkedList[event.id]!.isAtSameMomentAs(event.updateTime)) {
-            _eventList.add(event);
-          }
-        });
-        checkedList.clear();
-        rawEventList.clear();
-        sortEventsBySetting();
-      } else {
-        // Failed to get PTX data due to unknown error
-        _alertStatus = AlertStatus.SEVER_ERROR;
-      }
+    DatabaseHelper.dh
+        .getEventsByCity(
+            Constants.SOURCE_PTX, Constants.CITY_NAMES[city].toString())
+        .then((value) {
+      _eventList.clear();
+      _eventList = value;
+      sortEventsBySetting();
       setState(() {});
     });
   }
 
   void sortEventsBySetting() {
     _eventListForDisplay.clear();
-    List<ActivityTourismInfo> oldEventList = <ActivityTourismInfo>[];
-    List<ActivityTourismInfo> newEventList = <ActivityTourismInfo>[];
+    List<EventModel> oldEventList = <EventModel>[];
+    List<EventModel> newEventList = <EventModel>[];
     DateTime now = DateTime.now().toUtc();
     _eventList.forEach((event) {
       if (event.endTime.isBefore(now)) {
@@ -406,7 +371,7 @@ class _HomePageState extends State<HomePage> {
   }
 
   showAlertDialog(BuildContext context, String title, String content) {
-    AlertDialog alert = AlertDialog(
+    AlertDialog dialog = AlertDialog(
       title: Text(title),
       content: Text(content),
       actions: [
@@ -417,44 +382,13 @@ class _HomePageState extends State<HomePage> {
       ],
     );
     showDialog(
-      barrierDismissible: false,
       context: context,
+      barrierColor: Constants.COLOR_THEME_TRANSPARENT_BLACK,
+      barrierDismissible: false,
       builder: (BuildContext context) {
-        return alert;
+        return dialog;
       },
     );
-  }
-
-  String codec(String str1, String str2) {
-    List<int> list1 = base64.decode(str1);
-    List<int> list2 = base64.decode(str2);
-    List<int> result = [];
-    for (int i = 0; i < list1.length; i++) {
-      result.add(list1[i] ^ list2[i]);
-    }
-    return base64.encode(result);
-  }
-
-  Future<Response> getPtxDataByCity(String city) async {
-    var envU = dotenv.env['PTX_U'].toString();
-    var envK = dotenv.env['PTX_K'].toString();
-    var k = utf8.encode(envK.substring(0, 3) +
-        codec(envK.substring(3), 's7vKtxHFA3EpBryNI3AH1e9K'));
-    var utcTime =
-        DateFormat('EEE, dd MMM y HH:mm:ss').format(DateTime.now().toUtc());
-    var signature = base64.encode(
-        Hmac(sha1, k).convert(utf8.encode('x-date: $utcTime GMT')).bytes);
-
-    return await http.get(
-        Uri.parse(
-            'https://ptx.transportdata.tw/MOTC/v2/Tourism/Activity/$city?\$orderby=EndTime%20desc&\$top=20&\$format=JSON'),
-        headers: <String, String>{
-          'Accept': 'application/json',
-          'Authorization':
-              'hmac username="$envU", algorithm="hmac-sha1", headers="x-date", signature="$signature"',
-          'x-date': '$utcTime GMT',
-          'Accept-Encoding': 'gzip'
-        });
   }
 
   String getEventDateString(DateTime startDateTime, DateTime endDateTime) {

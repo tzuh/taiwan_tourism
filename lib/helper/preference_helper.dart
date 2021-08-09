@@ -2,11 +2,22 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:taiwantourism/constants.dart';
 
 class PreferenceHelper {
+  static const String KEY_PTX_LAST_MODIFIED_TIME = 'ptx_last_modified_time';
   static const String KEY_SHOW_EXPIRED_EVENTS = 'show_expired_events';
   static const String KEY_EVENT_SORT_BY = 'event_sort_by';
 
   static Future<SharedPreferences> getPrefs() async {
     return await SharedPreferences.getInstance();
+  }
+
+  static Future<String> getPtxLastModifiedTime() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    return prefs.getString(KEY_PTX_LAST_MODIFIED_TIME) ?? '';
+  }
+
+  static Future<void> setPtxLastModifiedTime(String value) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    prefs.setString(KEY_PTX_LAST_MODIFIED_TIME, value);
   }
 
   static Future<bool> getShowExpiredEvents() async {

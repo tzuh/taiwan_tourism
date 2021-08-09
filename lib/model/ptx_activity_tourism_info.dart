@@ -10,8 +10,8 @@ class PtxActivityTourismInfo {
   final String? address; // 主要活動地點地址
   final String? phone; // 活動聯絡電話
   final String? organizer; // 活動主辦單位
-  final String? startTime; // 活動開始時間(ISO8601格式:yyyy-MM-ddTHH:mm:sszzz)
-  final String? endTime; // 活動結束時間(ISO8601格式:yyyy-MM-ddTHH:mm:sszzz)
+  final String? startTime; // 活動開始時間
+  final String? endTime; // 活動結束時間
   final String? cycle; // 週期性活動執行時間
   final String? nonCycle; // 非週期性活動執行時間
   final String? websiteUrl; // 活動網址
@@ -25,8 +25,8 @@ class PtxActivityTourismInfo {
   final String? charge; // 費用標示
   final String? remarks; // 備註(其他活動相關事項)
   final String? city; // 所屬縣市
-  final String? srcUpdateTime; // 觀光局檔案更新時間(ISO8601格式:yyyy-MM-ddTHH:mm:sszzz)
-  final String? updateTime; // 本平台資料更新時間(ISO8601格式:yyyy-MM-ddTHH:mm:sszzz)
+  final String? srcUpdateTime; // 觀光局檔案更新時間
+  final String? updateTime; // 本平台資料更新時間
 
   PtxActivityTourismInfo({
     this.id,

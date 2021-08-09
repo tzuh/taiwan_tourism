@@ -1,5 +1,7 @@
 import 'dart:ui';
 
+import 'package:intl/intl.dart';
+
 class Constants {
   /// Cities
   static const String TAIPEI = 'Taipei'; // 臺北市
@@ -49,13 +51,22 @@ class Constants {
     KINMEN_COUNTY: '金門縣',
     PENGHU_COUNTY: '澎湖縣',
     LIENCHIANG_COUNTY: '連江縣',
-    NONE_CITY: '　　　',
   };
+
+  /// Source types
+  static const String SOURCE_PTX = 'PTX';
+
+  /// Formats
+  static const String EXPRESSION_PTX_HTTP = 'EEE, dd MMM yyyy HH:mm:ss GMT';
+  static const String EXPRESSION_PTX_DATA = 'yyyy-MM-ddTHH:mm:ss';
+  static const String EXPRESSION_ISO8601 = 'yyyy-MM-ddTHH:mm:ss+HH:mm';
+  static const String EXPRESSION_ISO8601_UTC = 'yyyy-MM-ddTHH:mm:ssZ';
 
   /// Datetime
   static const int SECONDS_FOR_QUIT = 2;
 
   /// Colors
+  static const Color COLOR_TRANSPARENT = Color(0x00000000);
   static const Color COLOR_THEME_BLUE_GREY = Color(0xFF607D8B);
   static const Color COLOR_THEME_RED = Color(0xFFE12525);
   static const Color COLOR_THEME_BLACK = Color(0xFF111111);
@@ -78,18 +89,20 @@ class Constants {
   static const int EVENT_SORT_BY_START_TIME = 0; // 依開始日期排序
   static const int EVENT_SORT_BY_END_TIME = 1; // 依結束日期排序
 
-  /// HTTP status code
-  static const int HTTP_STATUS_CODE_OK = 200;
-  static const int HTTP_STATUS_CODE_UNAUTHORIZED = 401; // 未帶簽章，未經授權
-  static const int HTTP_STATUS_CODE_SIGNATURE_ERROR = 403; // 簽章錯誤
-  static const int HTTP_STATUS_CODE_CONNECTION_EXCEEDED =
+  /// PTX HTTP
+  static const String PTX_RESPONSE_HEADER_LAST_MODIFIED = 'last-modified';
+  static const int PTX_STATUS_CODE_OK = 200;
+  static const int PTX_STATUS_CODE_IS_UP_TO_DATE = 304;
+  static const int PTX_STATUS_CODE_UNAUTHORIZED = 401; // 未帶簽章，未經授權
+  static const int PTX_STATUS_CODE_SIGNATURE_ERROR = 403; // 簽章錯誤
+  static const int PTX_STATUS_CODE_CONNECTION_EXCEEDED =
       416; // 超過最大平行連接數（每個IP發60個連接）
-  static const int HTTP_STATUS_CODE_REQUEST_EXCEEDED =
+  static const int PTX_STATUS_CODE_REQUEST_EXCEEDED =
       423; // 超過單位時間請求數（50 request/秒）
-  static const int HTTP_STATUS_CODE_API_RATE_EXCEEDED = 429; // 超過當日呼叫上限次數
+  static const int PTX_STATUS_CODE_API_RATE_EXCEEDED = 429; // 超過當日呼叫上限次數
 
   /// Strings for displaying
-  static const String STRING_ACTIVITY = '活動公告';
+  static const String STRING_EVENT = '活動公告';
   static const String STRING_SETTINGS = '設定';
   static const String STRING_BACK = '返回';
   static const String STRING_APP_VERSION = 'App 版本';
@@ -98,9 +111,11 @@ class Constants {
   static const String STRING_UPDATE_TIME = '最後更新時間：';
   static const String STRING_OFFLINE = '無法連線';
   static const String STRING_CHECK_CONNECTION = '請檢查網路設定';
-  static const String STRING_PTX = '交通部 PTX | (02)2349-2803 | ptx@motc.gov.tw';
+  static const String STRING_DISCLAIMER = '資料來自交通部PTX公開平臺，詳情請洽各活動主辦單位';
   static const String STRING_SEVER_ERROR = '伺服器錯誤';
   static const String STRING_TRY_LATER = '請稍後再試';
+  static const String STRING_CHECKING_DATA = '正在讀取資料...';
+  static const String STRING_UPDATING_DATA = '正在更新資料...';
   static const String STRING_OK = '確定';
   static const String STRING_PRESS_AGAIN_TO_QUIT = '再按一次返回鍵退出';
   static const String STRING_NO_SUITABLE_CONTENT = '沒有符合條件的資料';
