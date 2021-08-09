@@ -1,8 +1,8 @@
+import 'dart:io';
 import 'package:intl/intl.dart';
 import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:taiwantourism/model/event_model.dart';
-
 import '../constants.dart';
 
 class DatabaseHelper {
@@ -32,10 +32,11 @@ class DatabaseHelper {
   static const String COLUMN_PARKING_INFO = "parking_info";
   static const String COLUMN_CHARGE = "charge";
   static const String COLUMN_REMARKS = "remarks";
-  static const String COLUMN_CITY = "city";
+  static const String COLUMN_CITY_ID = "city_id";
   static const String COLUMN_SRC_UPDATE_TIME = "src_update_time";
   static const String COLUMN_PTX_UPDATE_TIME = "ptx_update_time";
   static const String COLUMN_SRC_TYPE = "src_type";
+  static const String COLUMN_STATUS = "status";
   static const String COLUMN_URL = "url";
   static const String COLUMN_NUMBER = "number";
 
@@ -80,9 +81,10 @@ class DatabaseHelper {
           '$COLUMN_PARKING_INFO TEXT,'
           '$COLUMN_CHARGE TEXT,'
           '$COLUMN_REMARKS TEXT,'
-          '$COLUMN_CITY TEXT,'
+          '$COLUMN_CITY_ID TEXT,'
           '$COLUMN_SRC_UPDATE_TIME TEXT,'
-          '$COLUMN_PTX_UPDATE_TIME TEXT)');
+          '$COLUMN_PTX_UPDATE_TIME TEXT,'
+          '$COLUMN_STATUS INTEGER)');
       database.execute('CREATE TABLE $TABLE_PICTURE ('
           '$COLUMN_ID INTEGER PRIMARY KEY,'
           '$COLUMN_SRC_TYPE TEXT,'
@@ -93,15 +95,40 @@ class DatabaseHelper {
     });
   }
 
-  Future<List<EventModel>> getEventsByCity(String srcType, String city) async {
-    return _getEvents(srcType, city);
+  Future<TourismPicture> _getTourismPicture(
+      String srcType, String srcId) async {
+    final db = await database;
+    var mapList = await db.query(TABLE_PICTURE,
+        columns: [
+          COLUMN_SRC_TYPE,
+          COLUMN_SRC_ID,
+          COLUMN_NUMBER,
+          COLUMN_URL,
+          COLUMN_DESCRIPTION,
+        ],
+        where: '$COLUMN_SRC_TYPE = ? AND $COLUMN_SRC_ID = ?',
+        whereArgs: [srcType, srcId]);
+    return TourismPicture.fromMapList(mapList);
   }
 
-  Future<List<EventModel>> getAllEvents(String srcType) async {
-    return _getEvents(srcType, '');
+  /// Returns the number of rows affected.
+  Future<int> _deleteTourismPicture(
+      String srcType, String srcId, Directory tempDir) async {
+    final db = await database;
+    int num = await db.delete(TABLE_PICTURE,
+        where: '$COLUMN_SRC_TYPE = ? AND $COLUMN_SRC_ID = ?',
+        whereArgs: [srcType, srcId]);
+    for (int i = 1; i <= num; i++) {
+      final file = File(join(tempDir.path, '${srcId}_$srcType$i.jpg'));
+      bool exists = await file.exists();
+      if (exists) {
+        await file.delete();
+      }
+    }
+    return num;
   }
 
-  Future<List<EventModel>> _getEvents(String srcType, String city) async {
+  Future<List<EventModel>> _getEvents(String srcType, String cityId) async {
     final db = await database;
     var eventMapList = await db.query(TABLE_EVENT,
         columns: [
@@ -130,14 +157,15 @@ class DatabaseHelper {
           COLUMN_PARKING_INFO,
           COLUMN_CHARGE,
           COLUMN_REMARKS,
-          COLUMN_CITY,
+          COLUMN_CITY_ID,
           COLUMN_SRC_UPDATE_TIME,
           COLUMN_PTX_UPDATE_TIME,
+          COLUMN_STATUS,
         ],
-        where: city.isEmpty
+        where: cityId.isEmpty
             ? '$COLUMN_SRC_TYPE = ?'
-            : '$COLUMN_SRC_TYPE = ? and $COLUMN_CITY = ?',
-        whereArgs: city.isEmpty ? [srcType] : [srcType, city]);
+            : '$COLUMN_SRC_TYPE = ? AND $COLUMN_CITY_ID = ?',
+        whereArgs: cityId.isEmpty ? [srcType] : [srcType, cityId]);
     List<EventModel> eventList = <EventModel>[];
     for (var eventMap in eventMapList) {
       var event = EventModel.fromMap(eventMap);
@@ -147,20 +175,21 @@ class DatabaseHelper {
     return eventList;
   }
 
-  Future<TourismPicture> _getTourismPicture(
-      String srcType, String srcId) async {
+  Future<List<EventModel>> getEventsByCity(
+      String srcType, String cityId) async {
+    return _getEvents(srcType, cityId);
+  }
+
+  Future<List<EventModel>> getAllEvents(String srcType) async {
+    return _getEvents(srcType, '');
+  }
+
+  Future<int> getCountOfNewEventByCity(String cityId) async {
     final db = await database;
-    var mapList = await db.query(TABLE_PICTURE,
-        columns: [
-          COLUMN_SRC_TYPE,
-          COLUMN_SRC_ID,
-          COLUMN_NUMBER,
-          COLUMN_URL,
-          COLUMN_DESCRIPTION,
-        ],
-        where: '$COLUMN_SRC_TYPE = ? and $COLUMN_SRC_ID = ?',
-        whereArgs: [srcType, srcId]);
-    return TourismPicture.fromMapList(mapList);
+    var x = await db.rawQuery(
+        'SELECT COUNT (*) FROM $TABLE_EVENT WHERE $COLUMN_CITY_ID = ? AND $COLUMN_STATUS = ?',
+        [cityId, Constants.EVENT_STATUS_NEW]);
+    return Sqflite.firstIntValue(x) ?? -1;
   }
 
   /// Returns the id of the last inserted row.
@@ -176,27 +205,27 @@ class DatabaseHelper {
   }
 
   /// Returns the number of changes made.
-  Future<int> updateEvent(EventModel event) async {
+  Future<int> updateEvent(EventModel event, Directory tempDir) async {
+    _deleteTourismPicture(event.srcType, event.srcId, tempDir);
     List<Map<String, dynamic>> mappedPictureList =
         event.picture.toMapList(event.srcType, event.srcId);
     Map<String, dynamic> mappedEvent = event.toMap();
     final db = await database;
-    await db.delete(TABLE_PICTURE,
-        where: '$COLUMN_SRC_TYPE = ? and $COLUMN_SRC_ID = ?',
-        whereArgs: [event.srcType, event.srcId]);
     for (var mappedPicture in mappedPictureList) {
       await db.insert(TABLE_PICTURE, mappedPicture);
     }
     return await db.update(TABLE_EVENT, mappedEvent,
-        where: '$COLUMN_SRC_TYPE = ? and $COLUMN_SRC_ID = ?',
+        where: '$COLUMN_SRC_TYPE = ? AND $COLUMN_SRC_ID = ?',
         whereArgs: [event.srcType, event.srcId]);
   }
 
   /// Returns the number of rows affected.
-  Future<int> deleteEvent(String srcType, String srcId) async {
+  Future<int> deleteEvent(
+      String srcType, String srcId, Directory tempDir) async {
+    _deleteTourismPicture(srcType, srcId, tempDir);
     final db = await database;
     return await db.delete(TABLE_EVENT,
-        where: '$COLUMN_SRC_TYPE = ? and $COLUMN_SRC_ID = ?',
+        where: '$COLUMN_SRC_TYPE = ? AND $COLUMN_SRC_ID = ?',
         whereArgs: [srcType, srcId]);
   }
 }

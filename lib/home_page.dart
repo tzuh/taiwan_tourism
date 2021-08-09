@@ -2,9 +2,7 @@ import 'dart:io';
 import 'package:path/path.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'dart:convert';
 import 'package:intl/intl.dart';
-import 'package:path_provider/path_provider.dart';
 import 'package:taiwantourism/event_page.dart';
 import 'package:taiwantourism/model/event_model.dart';
 import 'package:taiwantourism/setting_page.dart';
@@ -12,23 +10,21 @@ import 'package:taiwantourism/util/network_util.dart';
 import 'constants.dart';
 import 'helper/database_helper.dart';
 import 'helper/preference_helper.dart';
-import 'helper/ptx_helper.dart';
-import 'model/ptx_activity_tourism_info.dart';
 import 'package:network_to_file_image/network_to_file_image.dart';
 
 enum AlertStatus { NONE, IS_OFFLINE, SEVER_ERROR }
 
 class HomePage extends StatefulWidget {
   final String currentCity;
+  final Directory tempDir;
 
-  HomePage({required this.currentCity});
+  HomePage({required this.currentCity, required this.tempDir});
 
   @override
   _HomePageState createState() => _HomePageState();
 }
 
 class _HomePageState extends State<HomePage> {
-  late Directory _tempDir;
   List<EventModel> _eventList = <EventModel>[];
   List<EventModel> _eventListForDisplay = <EventModel>[];
   var _alertStatus = AlertStatus.NONE;
@@ -39,10 +35,10 @@ class _HomePageState extends State<HomePage> {
   @override
   void initState() {
     super.initState();
-    initVariables().then((value) {
+    initVariables().then((_) {
       NetworkUtil.isAvailable().then((isAvailable) {
         if (isAvailable) {
-          getEvents(widget.currentCity);
+          getEventsByCity(widget.currentCity);
         } else {
           _alertStatus = AlertStatus.IS_OFFLINE;
           setState(() {});
@@ -90,7 +86,7 @@ class _HomePageState extends State<HomePage> {
         title: TextButton(
             onPressed: () {},
             child: Text(
-              Constants.CITY_NAMES[widget.currentCity].toString(),
+              Constants.CITY_ID_TO_STRING[widget.currentCity].toString(),
               style:
                   TextStyle(color: Constants.COLOR_THEME_WHITE, fontSize: 20.0),
             )),
@@ -149,13 +145,19 @@ class _HomePageState extends State<HomePage> {
                             thisEvent.picture.ptxPictureList[0].url.isNotEmpty;
                     return InkWell(
                         onTap: () {
+                          _eventListForDisplay[index].status =
+                              Constants.EVENT_STATUS_NONE;
                           Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (context) => EventPage(
-                                        event: thisEvent,
-                                        tempDir: _tempDir,
-                                      ))).then((value) => setState(() {}));
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => EventPage(
+                                event: thisEvent,
+                                tempDir: widget.tempDir,
+                              ),
+                            ),
+                          ).then(
+                            (value) => setState(() {}),
+                          );
                         },
                         child: Container(
                           height: screenWidth * 0.63,
@@ -173,8 +175,8 @@ class _HomePageState extends State<HomePage> {
                                   ? NetworkToFileImage(
                                       url: thisEvent
                                           .picture.ptxPictureList[0].url,
-                                      file: File(join(_tempDir.path,
-                                          '${thisEvent.srcId}_a1.jpg')),
+                                      file: File(join(widget.tempDir.path,
+                                          '${thisEvent.srcId}_${thisEvent.srcType}1.jpg')),
                                       debug: false,
                                     )
                                   : Image.asset('assets/images/card_bg.jpg')
@@ -275,7 +277,34 @@ class _HomePageState extends State<HomePage> {
                                     ),
                                   ],
                                 ),
-                              )
+                              ),
+                              Visibility(
+                                visible: thisEvent.status ==
+                                    Constants.EVENT_STATUS_NEW,
+                                child: Container(
+                                  margin: EdgeInsets.only(
+                                      top: Constants.DIMEN_PRIMARY_MARGIN,
+                                      left: Constants.DIMEN_PRIMARY_MARGIN),
+                                  padding: EdgeInsets.all(
+                                      Constants.DIMEN_PRIMARY_MARGIN / 3),
+                                  decoration: BoxDecoration(
+                                    color: Constants.COLOR_THEME_RED,
+                                    border: Border.all(
+                                        color: Constants.COLOR_THEME_WHITE,
+                                        width: 1),
+                                    borderRadius: BorderRadius.all(
+                                        Radius.circular(
+                                            8) //         <--- border radius here
+                                        ),
+                                  ),
+                                  child: Text(
+                                    Constants.STRING_NEW,
+                                    style: TextStyle(
+                                        color: Constants.COLOR_THEME_WHITE,
+                                        fontSize: 12),
+                                  ),
+                                ),
+                              ),
                             ],
                           ),
                         ));
@@ -319,15 +348,13 @@ class _HomePageState extends State<HomePage> {
   }
 
   Future<void> initVariables() async {
-    _tempDir = await getTemporaryDirectory();
     _showExpiredEvents = await PreferenceHelper.getShowExpiredEvents();
     _eventSortBy = await PreferenceHelper.getEventSortBy();
   }
 
-  void getEvents(String city) {
+  void getEventsByCity(String cityId) {
     DatabaseHelper.dh
-        .getEventsByCity(
-            Constants.SOURCE_PTX, Constants.CITY_NAMES[city].toString())
+        .getEventsByCity(Constants.SOURCE_PTX, cityId)
         .then((value) {
       _eventList.clear();
       _eventList = value;

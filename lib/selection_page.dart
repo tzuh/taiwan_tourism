@@ -1,7 +1,9 @@
 import 'dart:convert';
+import 'dart:io';
 import 'dart:math';
 
 import 'package:flutter/material.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:taiwantourism/helper/preference_helper.dart';
 import 'package:taiwantourism/util/network_util.dart';
 
@@ -29,9 +31,12 @@ class SelectionPage extends StatefulWidget {
 }
 
 class _SelectionPageState extends State<SelectionPage> {
+  late Directory _tempDir;
+  var _selectedCity = '';
   var _ptxLocalEventList = <EventModel>[];
   var _ptxSeverEventList = <EventModel>[];
-  var _counterList = Map<String, int>();
+  var _cityCountList = Map<String, int>();
+  var _cityHighlightList = <String>[];
   var _alertStatus = AlertStatus.NONE;
   var _lastPressedBackButton = DateTime.now()
       .toUtc()
@@ -46,7 +51,9 @@ class _SelectionPageState extends State<SelectionPage> {
   @override
   void initState() {
     super.initState();
-    setState(() => _alertStatus = AlertStatus.LOCK);
+    initVariables().then((_) {
+      setState(() => _alertStatus = AlertStatus.LOCK);
+    });
   }
 
   @override
@@ -78,139 +85,80 @@ class _SelectionPageState extends State<SelectionPage> {
     });
 
     return WillPopScope(
-        onWillPop: () async {
-          var now = DateTime.now().toUtc();
-          if (now.difference(_lastPressedBackButton).inSeconds >
-              Constants.SECONDS_FOR_QUIT) {
-            _lastPressedBackButton = now;
-            ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(content: Text(Constants.STRING_PRESS_AGAIN_TO_QUIT)));
-            return false;
-          } else {
-            return true;
-          }
-        },
-        child: Scaffold(
-          backgroundColor: Constants.COLOR_THEME_BLUE_GREY,
-          body: Container(
-              margin: EdgeInsets.symmetric(vertical: screenHeight / 30),
-              decoration: BoxDecoration(
-                color: Constants.COLOR_THEME_BLUE_GREY,
-                image: DecorationImage(
-                  image: AssetImage('assets/images/selection_bg.png'),
-                  fit: BoxFit.contain,
+      onWillPop: () async {
+        var now = DateTime.now().toUtc();
+        if (now.difference(_lastPressedBackButton).inSeconds >
+            Constants.SECONDS_FOR_QUIT) {
+          _lastPressedBackButton = now;
+          ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text(Constants.STRING_PRESS_AGAIN_TO_QUIT)));
+          return false;
+        } else {
+          return true;
+        }
+      },
+      child: Scaffold(
+        backgroundColor: Constants.COLOR_THEME_BLUE_GREY,
+        body: Container(
+          margin: EdgeInsets.symmetric(vertical: screenHeight / 30),
+          decoration: BoxDecoration(
+            color: Constants.COLOR_THEME_BLUE_GREY,
+            image: DecorationImage(
+              image: AssetImage('assets/images/selection_bg.png'),
+              fit: BoxFit.contain,
+            ),
+          ),
+          child: Container(
+            margin: EdgeInsets.only(
+                left: screenWidth * 0.07,
+                right: screenWidth * 0.07,
+                top: screenHeight * 0.01,
+                bottom: screenHeight * 0.00),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                Column(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: <Widget>[
+                    buildCityButton(Constants.TAOYUAN),
+                    buildCityButton(Constants.HSINCHU),
+                    buildCityButton(Constants.HSINCHU_COUNTY),
+                    buildCityButton(Constants.MIAOLI_COUNTY),
+                    buildCityButton(Constants.TAICHUNG),
+                    buildCityButton(Constants.CHANGHUA_COUNTY),
+                    buildCityButton(Constants.YUNLIN_COUNTY),
+                    buildCityButton(Constants.CHIAYI),
+                    buildCityButton(Constants.CHIAYI_COUNTY),
+                    buildCityButton(Constants.TAINAN),
+                    buildCityButton(Constants.KAOHSIUNG),
+                  ],
                 ),
-              ),
-              child: Container(
-                  margin: EdgeInsets.only(
-                      left: screenWidth * 0.07,
-                      right: screenWidth * 0.07,
-                      top: screenHeight * 0.01,
-                      bottom: screenHeight * 0.00),
-                  child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                      children: [
-                        Column(
-                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                            children: <Widget>[
-                              buildCityButton(
-                                  Constants.CITY_NAMES[Constants.TAOYUAN]
-                                      .toString(),
-                                  Constants.TAOYUAN),
-                              buildCityButton(
-                                  Constants.CITY_NAMES[Constants.HSINCHU]
-                                      .toString(),
-                                  Constants.HSINCHU),
-                              buildCityButton(
-                                  Constants.CITY_NAMES[Constants.HSINCHU_COUNTY]
-                                      .toString(),
-                                  Constants.HSINCHU_COUNTY),
-                              buildCityButton(
-                                  Constants.CITY_NAMES[Constants.MIAOLI_COUNTY]
-                                      .toString(),
-                                  Constants.MIAOLI_COUNTY),
-                              buildCityButton(
-                                  Constants.CITY_NAMES[Constants.TAICHUNG]
-                                      .toString(),
-                                  Constants.TAICHUNG),
-                              buildCityButton(
-                                  Constants
-                                      .CITY_NAMES[Constants.CHANGHUA_COUNTY]
-                                      .toString(),
-                                  Constants.CHANGHUA_COUNTY),
-                              buildCityButton(
-                                  Constants.CITY_NAMES[Constants.YUNLIN_COUNTY]
-                                      .toString(),
-                                  Constants.YUNLIN_COUNTY),
-                              buildCityButton(
-                                  Constants.CITY_NAMES[Constants.CHIAYI]
-                                      .toString(),
-                                  Constants.CHIAYI),
-                              buildCityButton(
-                                  Constants.CITY_NAMES[Constants.CHIAYI_COUNTY]
-                                      .toString(),
-                                  Constants.CHIAYI_COUNTY),
-                              buildCityButton(
-                                  Constants.CITY_NAMES[Constants.TAINAN]
-                                      .toString(),
-                                  Constants.TAINAN),
-                              buildCityButton(
-                                  Constants.CITY_NAMES[Constants.KAOHSIUNG]
-                                      .toString(),
-                                  Constants.KAOHSIUNG),
-                            ]),
-                        Column(
-                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                            children: <Widget>[
-                              buildCityButton(
-                                  Constants.CITY_NAMES[Constants.KEELUNG]
-                                      .toString(),
-                                  Constants.KEELUNG),
-                              buildCityButton(
-                                  Constants.CITY_NAMES[Constants.TAIPEI]
-                                      .toString(),
-                                  Constants.TAIPEI),
-                              buildCityButton(
-                                  Constants.CITY_NAMES[Constants.NEW_TAIPEI]
-                                      .toString(),
-                                  Constants.NEW_TAIPEI),
-                              buildCityButton(
-                                  Constants.CITY_NAMES[Constants.YILAN_COUNTY]
-                                      .toString(),
-                                  Constants.YILAN_COUNTY),
-                              buildCityButton(
-                                  Constants.CITY_NAMES[Constants.HUALIEN_COUNTY]
-                                      .toString(),
-                                  Constants.HUALIEN_COUNTY),
-                              buildCityButton(
-                                  Constants.CITY_NAMES[Constants.NANTOU_COUNTY]
-                                      .toString(),
-                                  Constants.NANTOU_COUNTY),
-                              buildCityButton(
-                                  Constants.CITY_NAMES[Constants.TAITUNG_COUNTY]
-                                      .toString(),
-                                  Constants.TAITUNG_COUNTY),
-                              buildCityButton(
-                                  Constants
-                                      .CITY_NAMES[Constants.PINGTUNG_COUNTY]
-                                      .toString(),
-                                  Constants.PINGTUNG_COUNTY),
-                              buildCityButton(
-                                  Constants
-                                      .CITY_NAMES[Constants.LIENCHIANG_COUNTY]
-                                      .toString(),
-                                  Constants.LIENCHIANG_COUNTY),
-                              buildCityButton(
-                                  Constants.CITY_NAMES[Constants.KINMEN_COUNTY]
-                                      .toString(),
-                                  Constants.KINMEN_COUNTY),
-                              buildCityButton(
-                                  Constants.CITY_NAMES[Constants.PENGHU_COUNTY]
-                                      .toString(),
-                                  Constants.PENGHU_COUNTY),
-                            ]),
-                      ]))),
-        ));
+                Column(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: <Widget>[
+                    buildCityButton(Constants.KEELUNG),
+                    buildCityButton(Constants.TAIPEI),
+                    buildCityButton(Constants.NEW_TAIPEI),
+                    buildCityButton(Constants.YILAN_COUNTY),
+                    buildCityButton(Constants.HUALIEN_COUNTY),
+                    buildCityButton(Constants.NANTOU_COUNTY),
+                    buildCityButton(Constants.TAITUNG_COUNTY),
+                    buildCityButton(Constants.PINGTUNG_COUNTY),
+                    buildCityButton(Constants.LIENCHIANG_COUNTY),
+                    buildCityButton(Constants.KINMEN_COUNTY),
+                    buildCityButton(Constants.PENGHU_COUNTY),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Future<void> initVariables() async {
+    _tempDir = await getTemporaryDirectory();
   }
 
   showProgressDialog(BuildContext context) {
@@ -292,8 +240,8 @@ class _SelectionPageState extends State<SelectionPage> {
             print('PTX status code: ${response.statusCode}');
             if (response.statusCode == Constants.PTX_STATUS_CODE_OK) {
               _ptxLastModifiedTime = response
-                  .headers[Constants.PTX_RESPONSE_HEADER_LAST_MODIFIED]
-                  .toString();
+                      .headers[Constants.PTX_RESPONSE_HEADER_LAST_MODIFIED] ??
+                  '';
               _progressMessage = Constants.STRING_UPDATING_DATA;
               _setProgressDialogState(() => _progress = 0.0);
               // Parse data
@@ -306,7 +254,7 @@ class _SelectionPageState extends State<SelectionPage> {
               var checkedList = Map<String, DateTime>();
               list.forEach((ptx) {
                 var event = EventModel.fromPtx(ptx);
-                if (Constants.CITY_NAMES.containsValue(event.city)) {
+                if (event.cityId.isNotEmpty) {
                   ptxRawEventList.add(event);
                   if (checkedList.containsKey(event.srcId)) {
                     if (checkedList[event.srcId]!
@@ -339,16 +287,11 @@ class _SelectionPageState extends State<SelectionPage> {
                     print(
                         'Number of PTX local events: ${_ptxLocalEventList.length}');
                     _setProgressDialogState(() => _progress = 1.0);
-                    _counterList.clear();
-                    _ptxLocalEventList.forEach((event) {
-                      if (event.endTime.isAfter(DateTime.now().toUtc())) {
-                        int count = _counterList[event.city] ?? 0;
-                        _counterList[event.city] = count + 1;
-                      }
-                    });
                     PreferenceHelper.setPtxLastModifiedTime(
                         _ptxLastModifiedTime);
-                    setState(() => Navigator.pop(context));
+                    prepareCityLabels();
+                    Navigator.pop(context);
+                    setState(() => _alertStatus = AlertStatus.NONE);
                   });
                 });
               });
@@ -358,13 +301,7 @@ class _SelectionPageState extends State<SelectionPage> {
               getEventsFromDatabase().then((_) {
                 print(
                     'Number of PTX local events: ${_ptxLocalEventList.length}');
-                _counterList.clear();
-                _ptxLocalEventList.forEach((event) {
-                  if (event.endTime.isAfter(DateTime.now().toUtc())) {
-                    int count = _counterList[event.city] ?? 0;
-                    _counterList[event.city] = count + 1;
-                  }
-                });
+                prepareCityLabels();
                 Navigator.pop(context);
                 setState(() => _alertStatus = AlertStatus.NONE);
               });
@@ -391,17 +328,30 @@ class _SelectionPageState extends State<SelectionPage> {
   Future<List<String>> updateDatabase() async {
     var activeIdList = <String>[];
     var counter = 0;
+    var utcNow = DateTime.now().toUtc();
     for (var ptxSeverEvent in _ptxSeverEventList) {
       activeIdList.add(ptxSeverEvent.srcId);
       bool foundMatching = false;
       for (var ptxLocalEvent in _ptxLocalEventList) {
         if (ptxSeverEvent.srcId == ptxLocalEvent.srcId) {
           foundMatching = true;
-          await DatabaseHelper.dh.updateEvent(ptxSeverEvent);
+          if (ptxSeverEvent.srcUpdateTime
+              .isAfter(ptxLocalEvent.srcUpdateTime)) {
+            if (ptxSeverEvent.endTime.isAfter(utcNow)) {
+              ptxSeverEvent.status = ptxLocalEvent.status;
+            } else {
+              ptxSeverEvent.status = Constants.EVENT_STATUS_NONE;
+            }
+            await DatabaseHelper.dh.updateEvent(ptxSeverEvent, _tempDir);
+          }
           break;
         }
       }
       if (!foundMatching) {
+        if (ptxSeverEvent.endTime.isAfter(utcNow) &&
+            _ptxLocalEventList.length > 0) {
+          ptxSeverEvent.status = Constants.EVENT_STATUS_NEW;
+        }
         await DatabaseHelper.dh.insertEvent(ptxSeverEvent);
       }
       _setProgressDialogState(
@@ -415,12 +365,29 @@ class _SelectionPageState extends State<SelectionPage> {
     for (var ptxLocalEvent in _ptxLocalEventList) {
       if (!activeIdList.contains(ptxLocalEvent.srcId)) {
         DatabaseHelper.dh
-            .deleteEvent(ptxLocalEvent.srcType, ptxLocalEvent.srcId);
+            .deleteEvent(ptxLocalEvent.srcType, ptxLocalEvent.srcId, _tempDir);
       }
     }
   }
 
-  Stack buildCityButton(String displayName, String urlName) {
+  void prepareCityLabels() {
+    var utcNow = DateTime.now().toUtc();
+    _cityCountList.clear();
+    _cityHighlightList.clear();
+    _ptxLocalEventList.forEach((event) {
+      if (event.endTime.isAfter(utcNow)) {
+        int count = _cityCountList[event.cityId] ?? 0;
+        _cityCountList[event.cityId] = count + 1;
+        if (event.status == Constants.EVENT_STATUS_NEW &&
+            !_cityHighlightList.contains(event.cityId)) {
+          _cityHighlightList.add(event.cityId);
+        }
+      }
+    });
+  }
+
+  Stack buildCityButton(String cityId) {
+    String cityString = Constants.CITY_ID_TO_STRING[cityId] ?? '';
     return Stack(children: [
       Container(
         padding: EdgeInsets.all(0),
@@ -441,16 +408,29 @@ class _SelectionPageState extends State<SelectionPage> {
                 Constants.COLOR_THEME_TRANSPARENT_BLACK),
           ),
           onPressed: () {
+            _selectedCity = cityId;
             Navigator.push(
-                context,
-                MaterialPageRoute(
-                    builder: (context) => HomePage(currentCity: urlName)));
+              context,
+              MaterialPageRoute(
+                builder: (context) => HomePage(
+                  currentCity: cityId,
+                  tempDir: _tempDir,
+                ),
+              ),
+            ).then((_) {
+              DatabaseHelper.dh
+                  .getCountOfNewEventByCity(_selectedCity)
+                  .then((count) {
+                if (count == 0) {
+                  setState(() => _cityHighlightList.remove(_selectedCity));
+                }
+              });
+            });
           },
           child: Row(
             children: [
               Text(
-                displayName,
-                // '$displayName (${_counterList[displayName] ??= 0})',
+                cityString,
                 style:
                     TextStyle(color: Constants.COLOR_THEME_WHITE, fontSize: 24),
                 textAlign: TextAlign.center,
@@ -460,20 +440,20 @@ class _SelectionPageState extends State<SelectionPage> {
         ),
       ),
       Visibility(
-        visible: _counterList[displayName] != null,
+        visible: _cityCountList[cityId] != null,
         child: Container(
           margin: EdgeInsets.all(0),
           padding: EdgeInsets.symmetric(
               vertical: 3 * _scale, horizontal: 5 * _scale),
           decoration: BoxDecoration(
-            color: Constants.COLOR_THEME_RED,
+            color: _cityHighlightList.contains(cityId)
+                ? Constants.COLOR_THEME_RED
+                : Constants.COLOR_THEME_BLACK,
             border: Border.all(color: Constants.COLOR_THEME_WHITE, width: 1),
-            borderRadius: BorderRadius.all(
-                Radius.circular(10) //         <--- border radius here
-                ),
-          ), //       <--- BoxDecoration here
+            borderRadius: BorderRadius.all(Radius.circular(10)),
+          ),
           child: Text(
-            '${_counterList[displayName]}',
+            '${_cityCountList[cityId]}',
             style: TextStyle(color: Constants.COLOR_THEME_WHITE, fontSize: 12),
           ),
         ),

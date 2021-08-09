@@ -1,7 +1,6 @@
 import 'package:intl/intl.dart';
 import 'package:taiwantourism/helper/database_helper.dart';
 import 'package:taiwantourism/model/ptx_activity_tourism_info.dart';
-
 import '../constants.dart';
 
 class EventModel {
@@ -29,9 +28,10 @@ class EventModel {
   late String parkingInfo; // 停車資訊
   late String charge; // 費用標示
   late String remarks; // 備註(其他活動相關事項)
-  late String city; // 所屬縣市
+  late String cityId; // 所屬縣市(ID)
   late DateTime originalUpdateTime; // 觀光局檔案更新時間
   late DateTime srcUpdateTime; // 本平台資料更新時間
+  int status = Constants.EVENT_STATUS_NONE;
 
   EventModel({
     required this.srcType,
@@ -57,7 +57,7 @@ class EventModel {
     required this.parkingInfo,
     required this.charge,
     required this.remarks,
-    required this.city,
+    required this.cityId,
     required this.originalUpdateTime,
     required this.srcUpdateTime,
   });
@@ -74,7 +74,7 @@ class EventModel {
     }
 
     String fixCity(String city) {
-      return city.replaceAll('台', '臺');
+      return Constants.CITY_STRING_TO_ID[city.replaceAll('台', '臺')] ?? '';
     }
 
     String fixUrl(String url) {
@@ -200,7 +200,7 @@ class EventModel {
       parkingInfo: fixString(ptx.parkingInfo),
       charge: fixString(ptx.charge),
       remarks: fixString(ptx.remarks),
-      city: fixCity(fixString(ptx.city)),
+      cityId: fixCity(fixString(ptx.city)),
       originalUpdateTime: new DateFormat(Constants.EXPRESSION_PTX_DATA)
           .parse(fixString(ptx.srcUpdateTime), true)
           .add(Duration(hours: -8)),
@@ -238,11 +238,12 @@ class EventModel {
       DatabaseHelper.COLUMN_PARKING_INFO: parkingInfo,
       DatabaseHelper.COLUMN_CHARGE: charge,
       DatabaseHelper.COLUMN_REMARKS: remarks,
-      DatabaseHelper.COLUMN_CITY: city,
+      DatabaseHelper.COLUMN_CITY_ID: cityId,
       DatabaseHelper.COLUMN_SRC_UPDATE_TIME:
           DateFormat(Constants.EXPRESSION_PTX_DATA).format(originalUpdateTime),
       DatabaseHelper.COLUMN_PTX_UPDATE_TIME:
           DateFormat(Constants.EXPRESSION_PTX_DATA).format(srcUpdateTime),
+      DatabaseHelper.COLUMN_STATUS: status,
     };
     if (dbId >= 0) {
       map[DatabaseHelper.COLUMN_ID] = dbId;
@@ -280,11 +281,12 @@ class EventModel {
     parkingInfo = map[DatabaseHelper.COLUMN_PARKING_INFO];
     charge = map[DatabaseHelper.COLUMN_CHARGE];
     remarks = map[DatabaseHelper.COLUMN_REMARKS];
-    city = map[DatabaseHelper.COLUMN_CITY];
+    cityId = map[DatabaseHelper.COLUMN_CITY_ID];
     originalUpdateTime = DateFormat(Constants.EXPRESSION_PTX_DATA)
         .parse(map[DatabaseHelper.COLUMN_SRC_UPDATE_TIME], true);
     srcUpdateTime = DateFormat(Constants.EXPRESSION_PTX_DATA)
         .parse(map[DatabaseHelper.COLUMN_PTX_UPDATE_TIME], true);
+    status = map[DatabaseHelper.COLUMN_STATUS];
   }
 }
 

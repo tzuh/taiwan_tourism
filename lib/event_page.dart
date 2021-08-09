@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:network_to_file_image/network_to_file_image.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'constants.dart';
+import 'helper/database_helper.dart';
 import 'model/event_model.dart';
 
 class EventPage extends StatefulWidget {
@@ -19,6 +20,13 @@ class EventPage extends StatefulWidget {
 }
 
 class _EventPageState extends State<EventPage> {
+  @override
+  void initState() {
+    super.initState();
+    widget.event.status = Constants.EVENT_STATUS_NONE;
+    DatabaseHelper.dh.updateEvent(widget.event, widget.tempDir);
+  }
+
   @override
   Widget build(BuildContext context) {
     bool _hasAddress = widget.event.address.isNotEmpty;
@@ -134,8 +142,10 @@ class _EventPageState extends State<EventPage> {
                                 iconSize: Constants.DIMEN_ICON_BUTTON,
                                 onPressed: () async {
                                   String address = widget.event.address;
-                                  if (!address.startsWith(widget.event.city)) {
-                                    address = '${widget.event.city} ' + address;
+                                  if (!address
+                                      .startsWith(widget.event.cityId)) {
+                                    address =
+                                        '${widget.event.cityId} ' + address;
                                   }
                                   String query = Uri.encodeComponent(address);
                                   String url =
@@ -224,7 +234,7 @@ class _EventPageState extends State<EventPage> {
                                   ? widget.event.picture.ptxPictureList[0].url
                                   : '',
                               file: File(join(widget.tempDir.path,
-                                  '${widget.event.srcId}_a1.jpg')),
+                                  '${widget.event.srcId}_${widget.event.srcType}1.jpg')),
                               debug: false,
                             ),
                           ),
@@ -265,7 +275,7 @@ class _EventPageState extends State<EventPage> {
                                   ? widget.event.picture.ptxPictureList[1].url
                                   : '',
                               file: File(join(widget.tempDir.path,
-                                  '${widget.event.srcId}_a2.jpg')),
+                                  '${widget.event.srcId}_${widget.event.srcType}2.jpg')),
                               debug: false,
                             ),
                           ),
@@ -306,7 +316,7 @@ class _EventPageState extends State<EventPage> {
                                   ? widget.event.picture.ptxPictureList[2].url
                                   : '',
                               file: File(join(widget.tempDir.path,
-                                  '${widget.event.srcId}_a3.jpg')),
+                                  '${widget.event.srcId}_${widget.event.srcType}3.jpg')),
                               debug: false,
                             ),
                           ),

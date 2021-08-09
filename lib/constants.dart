@@ -1,9 +1,7 @@
 import 'dart:ui';
 
-import 'package:intl/intl.dart';
-
 class Constants {
-  /// Cities
+  /// City identifications (also for PTX HTTP)
   static const String TAIPEI = 'Taipei'; // 臺北市
   static const String NEW_TAIPEI = 'NewTaipei'; // 新北市
   static const String TAOYUAN = 'Taoyuan'; // 桃園市
@@ -28,7 +26,8 @@ class Constants {
   static const String LIENCHIANG_COUNTY = 'LienchiangCounty'; // 連江縣
   static const String NONE_CITY = '';
 
-  static const Map<String, String> CITY_NAMES = {
+  /// City ID to String
+  static const Map<String, String> CITY_ID_TO_STRING = {
     TAIPEI: '臺北市',
     NEW_TAIPEI: '新北市',
     TAOYUAN: '桃園市',
@@ -53,8 +52,38 @@ class Constants {
     LIENCHIANG_COUNTY: '連江縣',
   };
 
+  /// City String to ID
+  static const Map<String, String> CITY_STRING_TO_ID = {
+    '臺北市': TAIPEI,
+    '新北市': NEW_TAIPEI,
+    '桃園市': TAOYUAN,
+    '臺中市': TAICHUNG,
+    '臺南市': TAINAN,
+    '高雄市': KAOHSIUNG,
+    '基隆市': KEELUNG,
+    '新竹市': HSINCHU,
+    '新竹縣': HSINCHU_COUNTY,
+    '苗栗縣': MIAOLI_COUNTY,
+    '彰化縣': CHANGHUA_COUNTY,
+    '南投縣': NANTOU_COUNTY,
+    '雲林縣': YUNLIN_COUNTY,
+    '嘉義縣': CHIAYI_COUNTY,
+    '嘉義市': CHIAYI,
+    '屏東縣': PINGTUNG_COUNTY,
+    '宜蘭縣': YILAN_COUNTY,
+    '花蓮縣': HUALIEN_COUNTY,
+    '臺東縣': TAITUNG_COUNTY,
+    '金門縣': KINMEN_COUNTY,
+    '澎湖縣': PENGHU_COUNTY,
+    '連江縣': LIENCHIANG_COUNTY,
+  };
+
   /// Source types
   static const String SOURCE_PTX = 'PTX';
+
+  /// Event status
+  static const int EVENT_STATUS_NONE = 0;
+  static const int EVENT_STATUS_NEW = 1;
 
   /// Formats
   static const String EXPRESSION_PTX_HTTP = 'EEE, dd MMM yyyy HH:mm:ss GMT';
@@ -111,7 +140,7 @@ class Constants {
   static const String STRING_UPDATE_TIME = '最後更新時間：';
   static const String STRING_OFFLINE = '無法連線';
   static const String STRING_CHECK_CONNECTION = '請檢查網路設定';
-  static const String STRING_DISCLAIMER = '資料來自交通部PTX公開平臺，詳情請洽各活動主辦單位';
+  static const String STRING_DISCLAIMER = '資料來自交通部PTX平臺　詳情請洽各活動主辦單位';
   static const String STRING_SEVER_ERROR = '伺服器錯誤';
   static const String STRING_TRY_LATER = '請稍後再試';
   static const String STRING_CHECKING_DATA = '正在讀取資料...';
@@ -126,4 +155,5 @@ class Constants {
   static const String STRING_EVENT_RUNNING = '活動進行中';
   static const String STRING_BEGIN_AFTER_DAYS = '天後開始';
   static const String STRING_BEGIN_AFTER_WEEKS = '週後開始';
+  static const String STRING_NEW = 'NEW';
 }
