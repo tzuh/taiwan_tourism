@@ -37,12 +37,17 @@ class _HomePageState extends State<HomePage> {
     super.initState();
     initVariables().then((_) {
       NetworkUtil.isAvailable().then((isAvailable) {
-        if (isAvailable) {
-          getEventsByCity(widget.currentCity);
-        } else {
+        if (!isAvailable) {
           _alertStatus = AlertStatus.IS_OFFLINE;
-          setState(() {});
         }
+        DatabaseHelper.dh
+            .getEventsByCity(Constants.SOURCE_PTX, widget.currentCity)
+            .then((eventList) {
+          _eventList.clear();
+          _eventList = eventList;
+          sortEventsBySetting();
+          setState(() {});
+        });
       });
     });
   }
@@ -401,6 +406,7 @@ class _HomePageState extends State<HomePage> {
     AlertDialog dialog = AlertDialog(
       title: Text(title),
       content: Text(content),
+      backgroundColor: Constants.COLOR_THEME_DARK_WHITE,
       actions: [
         TextButton(
           child: Text(Constants.STRING_OK),

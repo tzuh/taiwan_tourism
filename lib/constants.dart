@@ -97,8 +97,9 @@ class Constants {
   /// Colors
   static const Color COLOR_TRANSPARENT = Color(0x00000000);
   static const Color COLOR_THEME_BLUE_GREY = Color(0xFF607D8B);
-  static const Color COLOR_THEME_RED = Color(0xFFE12525);
+  static const Color COLOR_THEME_RED = Color(0xFFD11515);
   static const Color COLOR_THEME_BLACK = Color(0xFF111111);
+  static const Color COLOR_THEME_LIGHT_BLACK = Color(0xFF303030);
   static const Color COLOR_THEME_TRANSPARENT_BLACK = Color(0xB0000000);
   static const Color COLOR_THEME_WHITE = Color(0xFFFFFFFF);
   static const Color COLOR_THEME_DARK_WHITE = Color(0xFFEAEAEA);

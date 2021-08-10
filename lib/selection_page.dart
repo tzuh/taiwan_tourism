@@ -98,8 +98,10 @@ class _SelectionPageState extends State<SelectionPage> {
         }
       },
       child: Scaffold(
+        resizeToAvoidBottomInset: false,
         backgroundColor: Constants.COLOR_THEME_BLUE_GREY,
         body: Container(
+          padding: EdgeInsets.all(0),
           margin: EdgeInsets.symmetric(vertical: screenHeight / 30),
           decoration: BoxDecoration(
             color: Constants.COLOR_THEME_BLUE_GREY,
@@ -109,16 +111,18 @@ class _SelectionPageState extends State<SelectionPage> {
             ),
           ),
           child: Container(
+            padding: EdgeInsets.all(0),
             margin: EdgeInsets.only(
                 left: screenWidth * 0.07,
                 right: screenWidth * 0.07,
-                top: screenHeight * 0.01,
-                bottom: screenHeight * 0.00),
+                top: screenHeight * 0.03,
+                bottom: screenHeight * 0.02),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
                 Column(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  crossAxisAlignment: CrossAxisAlignment.center,
                   children: <Widget>[
                     buildCityButton(Constants.TAOYUAN),
                     buildCityButton(Constants.HSINCHU),
@@ -135,6 +139,7 @@ class _SelectionPageState extends State<SelectionPage> {
                 ),
                 Column(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  crossAxisAlignment: CrossAxisAlignment.center,
                   children: <Widget>[
                     buildCityButton(Constants.KEELUNG),
                     buildCityButton(Constants.TAIPEI),
@@ -213,6 +218,7 @@ class _SelectionPageState extends State<SelectionPage> {
     AlertDialog dialog = AlertDialog(
       title: Text(title),
       content: Text(content),
+      backgroundColor: Constants.COLOR_THEME_DARK_WHITE,
       actions: [
         TextButton(
           child: Text(Constants.STRING_OK),
@@ -297,7 +303,7 @@ class _SelectionPageState extends State<SelectionPage> {
               });
             } else if (response.statusCode ==
                 Constants.PTX_STATUS_CODE_IS_UP_TO_DATE) {
-              // Load events from database again
+              // Load events from database
               getEventsFromDatabase().then((_) {
                 print(
                     'Number of PTX local events: ${_ptxLocalEventList.length}');
@@ -306,15 +312,25 @@ class _SelectionPageState extends State<SelectionPage> {
                 setState(() => _alertStatus = AlertStatus.NONE);
               });
             } else {
-              // Failed to get PTX data due to unknown error
-              Navigator.pop(context);
-              setState(() => _alertStatus = AlertStatus.SEVER_ERROR);
+              // Load events from database
+              getEventsFromDatabase().then((_) {
+                print(
+                    'Number of PTX local events: ${_ptxLocalEventList.length}');
+                prepareCityLabels();
+                Navigator.pop(context);
+                setState(() => _alertStatus = AlertStatus.SEVER_ERROR);
+              });
             }
           });
         });
       } else {
-        Navigator.pop(context);
-        setState(() => _alertStatus = AlertStatus.IS_OFFLINE);
+        // Load events from database
+        getEventsFromDatabase().then((_) {
+          print('Number of PTX local events: ${_ptxLocalEventList.length}');
+          prepareCityLabels();
+          Navigator.pop(context);
+          setState(() => _alertStatus = AlertStatus.IS_OFFLINE);
+        });
       }
     });
   }
@@ -342,7 +358,13 @@ class _SelectionPageState extends State<SelectionPage> {
             } else {
               ptxSeverEvent.status = Constants.EVENT_STATUS_NONE;
             }
-            await DatabaseHelper.dh.updateEvent(ptxSeverEvent, _tempDir);
+            await DatabaseHelper.dh
+                .updateEvent(ptxSeverEvent, ptxLocalEvent, _tempDir);
+          } else if (ptxLocalEvent.status == Constants.EVENT_STATUS_NEW &&
+              ptxLocalEvent.endTime.isBefore(utcNow)) {
+            ptxLocalEvent.status = Constants.EVENT_STATUS_NONE;
+            await DatabaseHelper.dh
+                .updateEvent(ptxLocalEvent, ptxLocalEvent, _tempDir);
           }
           break;
         }
@@ -378,10 +400,10 @@ class _SelectionPageState extends State<SelectionPage> {
       if (event.endTime.isAfter(utcNow)) {
         int count = _cityCountList[event.cityId] ?? 0;
         _cityCountList[event.cityId] = count + 1;
-        if (event.status == Constants.EVENT_STATUS_NEW &&
-            !_cityHighlightList.contains(event.cityId)) {
-          _cityHighlightList.add(event.cityId);
-        }
+      }
+      if (event.status == Constants.EVENT_STATUS_NEW &&
+          !_cityHighlightList.contains(event.cityId)) {
+        _cityHighlightList.add(event.cityId);
       }
     });
   }
@@ -391,14 +413,13 @@ class _SelectionPageState extends State<SelectionPage> {
     return Stack(children: [
       Container(
         padding: EdgeInsets.all(0),
-        margin: EdgeInsets.only(
-            left: 10 * _scale, right: 10 * _scale, top: 3 * _scale),
+        margin: EdgeInsets.only(left: 32 * _scale, right: 32 * _scale),
         child: OutlinedButton(
           style: ButtonStyle(
             padding: MaterialStateProperty.all<EdgeInsets>(EdgeInsets.only(
                 left: 14 * _scale,
                 right: 14 * _scale,
-                top: 3 * _scale,
+                top: 5 * _scale,
                 bottom: 5 * _scale)),
             shape: MaterialStateProperty.all<RoundedRectangleBorder>(
                 RoundedRectangleBorder(borderRadius: BorderRadius.circular(8))),
@@ -442,19 +463,31 @@ class _SelectionPageState extends State<SelectionPage> {
       Visibility(
         visible: _cityCountList[cityId] != null,
         child: Container(
+          alignment: Alignment.bottomRight,
           margin: EdgeInsets.all(0),
-          padding: EdgeInsets.symmetric(
-              vertical: 3 * _scale, horizontal: 5 * _scale),
-          decoration: BoxDecoration(
-            color: _cityHighlightList.contains(cityId)
-                ? Constants.COLOR_THEME_RED
-                : Constants.COLOR_THEME_BLACK,
-            border: Border.all(color: Constants.COLOR_THEME_WHITE, width: 1),
-            borderRadius: BorderRadius.all(Radius.circular(10)),
-          ),
-          child: Text(
-            '${_cityCountList[cityId]}',
-            style: TextStyle(color: Constants.COLOR_THEME_WHITE, fontSize: 12),
+          padding: EdgeInsets.all(0),
+          width: 36 * _scale,
+          child: Container(
+            margin: EdgeInsets.all(0),
+            padding: EdgeInsets.symmetric(
+                vertical: 3 * _scale, horizontal: 5 * _scale),
+            decoration: BoxDecoration(
+              // shape: BoxShape.circle,
+              color: _cityHighlightList.contains(cityId)
+                  ? Constants.COLOR_THEME_RED
+                  : Constants.COLOR_THEME_LIGHT_BLACK,
+              border: Border.all(color: Constants.COLOR_THEME_WHITE, width: 1),
+              borderRadius: BorderRadius.only(
+                  topLeft: Radius.circular(8),
+                  topRight: Radius.circular(8),
+                  bottomLeft: Radius.circular(8)),
+            ),
+            child: Text(
+              '${(_cityCountList[cityId] ?? 0)}',
+              style:
+                  TextStyle(color: Constants.COLOR_THEME_WHITE, fontSize: 14),
+              maxLines: 1,
+            ),
           ),
         ),
       ),
