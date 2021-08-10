@@ -24,7 +24,7 @@ class _EventPageState extends State<EventPage> {
   void initState() {
     super.initState();
     widget.event.status = Constants.EVENT_STATUS_NONE;
-    DatabaseHelper.dh.updateEvent(widget.event,widget.event, widget.tempDir);
+    DatabaseHelper.dh.updateEvent(widget.event, widget.event, widget.tempDir);
   }
 
   @override
@@ -234,7 +234,7 @@ class _EventPageState extends State<EventPage> {
                                   ? widget.event.picture.ptxPictureList[0].url
                                   : '',
                               file: File(join(widget.tempDir.path,
-                                  '${widget.event.srcId}_${widget.event.srcType}1.jpg')),
+                                  '${widget.event.srcType}_${widget.event.srcId}_1.jpg')),
                               debug: false,
                             ),
                           ),
@@ -275,7 +275,7 @@ class _EventPageState extends State<EventPage> {
                                   ? widget.event.picture.ptxPictureList[1].url
                                   : '',
                               file: File(join(widget.tempDir.path,
-                                  '${widget.event.srcId}_${widget.event.srcType}2.jpg')),
+                                  '${widget.event.srcType}_${widget.event.srcId}_2.jpg')),
                               debug: false,
                             ),
                           ),
@@ -316,7 +316,7 @@ class _EventPageState extends State<EventPage> {
                                   ? widget.event.picture.ptxPictureList[2].url
                                   : '',
                               file: File(join(widget.tempDir.path,
-                                  '${widget.event.srcId}_${widget.event.srcType}3.jpg')),
+                                  '${widget.event.srcType}_${widget.event.srcId}_3.jpg')),
                               debug: false,
                             ),
                           ),

@@ -181,7 +181,7 @@ class _HomePageState extends State<HomePage> {
                                       url: thisEvent
                                           .picture.ptxPictureList[0].url,
                                       file: File(join(widget.tempDir.path,
-                                          '${thisEvent.srcId}_${thisEvent.srcType}1.jpg')),
+                                          '${thisEvent.srcType}_${thisEvent.srcId}_1.jpg')),
                                       debug: false,
                                     )
                                   : Image.asset('assets/images/card_bg.jpg')

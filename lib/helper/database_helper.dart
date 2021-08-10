@@ -119,10 +119,14 @@ class DatabaseHelper {
         where: '$COLUMN_SRC_TYPE = ? AND $COLUMN_SRC_ID = ?',
         whereArgs: [srcType, srcId]);
     for (int i = 1; i <= num; i++) {
-      final file = File(join(tempDir.path, '${srcId}_$srcType$i.jpg'));
+      final file = File(join(tempDir.path, '${srcType}_${srcId}_$i.jpg'));
       bool exists = await file.exists();
       if (exists) {
-        await file.delete();
+        try {
+          await file.delete();
+        } catch (e) {
+          print('Exception: $e');
+        }
       }
     }
     return num;

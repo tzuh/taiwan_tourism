@@ -90,8 +90,10 @@ class _SelectionPageState extends State<SelectionPage> {
         if (now.difference(_lastPressedBackButton).inSeconds >
             Constants.SECONDS_FOR_QUIT) {
           _lastPressedBackButton = now;
-          ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text(Constants.STRING_PRESS_AGAIN_TO_QUIT)));
+          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+            content: Text(Constants.STRING_PRESS_AGAIN_TO_QUIT),
+            backgroundColor: Constants.COLOR_THEME_TRANSPARENT_BLACK,
+          ));
           return false;
         } else {
           return true;
