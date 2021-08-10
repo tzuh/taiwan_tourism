@@ -3,7 +3,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:taiwantourism/main.dart';
 
 void main() {
-  testWidgets('Counter increments smoke test', (WidgetTester tester) async {
+  testWidgets('City names test', (WidgetTester tester) async {
     await tester.pumpWidget(MyApp());
     expect(find.text('桃園市'), findsOneWidget);
     expect(find.text('新竹市'), findsOneWidget);
@@ -27,5 +27,6 @@ void main() {
     expect(find.text('連江縣'), findsOneWidget);
     expect(find.text('金門縣'), findsOneWidget);
     expect(find.text('澎湖縣'), findsOneWidget);
+    await tester.pumpAndSettle(const Duration(seconds: 1));
   });
 }

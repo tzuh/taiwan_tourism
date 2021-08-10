@@ -24,7 +24,7 @@ class _EventPageState extends State<EventPage> {
   void initState() {
     super.initState();
     widget.event.status = Constants.EVENT_STATUS_NONE;
-    DatabaseHelper.dh.updateEvent(widget.event, widget.tempDir);
+    DatabaseHelper.dh.updateEvent(widget.event,widget.event, widget.tempDir);
   }
 
   @override

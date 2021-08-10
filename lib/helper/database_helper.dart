@@ -197,32 +197,60 @@ class DatabaseHelper {
     List<Map<String, dynamic>> mappedPictureList =
         event.picture.toMapList(event.srcType, event.srcId);
     Map<String, dynamic> mappedEvent = event.toMap();
+    // Insert pictures
     final db = await database;
     for (var mappedPicture in mappedPictureList) {
       await db.insert(TABLE_PICTURE, mappedPicture);
     }
+    // Insert event
     return await db.insert(TABLE_EVENT, mappedEvent);
   }
 
   /// Returns the number of changes made.
-  Future<int> updateEvent(EventModel event, Directory tempDir) async {
-    _deleteTourismPicture(event.srcType, event.srcId, tempDir);
+  Future<int> updateEvent(
+      EventModel newEvent, EventModel oldEvent, Directory tempDir) async {
     List<Map<String, dynamic>> mappedPictureList =
-        event.picture.toMapList(event.srcType, event.srcId);
-    Map<String, dynamic> mappedEvent = event.toMap();
-    final db = await database;
-    for (var mappedPicture in mappedPictureList) {
-      await db.insert(TABLE_PICTURE, mappedPicture);
+        newEvent.picture.toMapList(newEvent.srcType, newEvent.srcId);
+    Map<String, dynamic> mappedEvent = newEvent.toMap();
+    // Update pictures
+    bool allUrlMatched = false;
+    if (newEvent.picture.ptxPictureList.length ==
+        oldEvent.picture.ptxPictureList.length) {
+      allUrlMatched = true;
+      for (int i = 0; i < newEvent.picture.ptxPictureList.length; i++) {
+        if (newEvent.picture.ptxPictureList[i].url !=
+            oldEvent.picture.ptxPictureList[i].url) {
+          allUrlMatched = false;
+          break;
+        }
+      }
     }
+    final db = await database;
+    if (allUrlMatched) {
+      for (int i = 0; i < mappedPictureList.length; i++) {
+        await db.update(TABLE_PICTURE, mappedPictureList[i],
+            where:
+                '$COLUMN_SRC_TYPE = ? AND $COLUMN_SRC_ID = ? AND $COLUMN_NUMBER = ?',
+            whereArgs: [newEvent.srcType, newEvent.srcId, i + 1]);
+      }
+    } else {
+      _deleteTourismPicture(newEvent.srcType, newEvent.srcId, tempDir);
+      for (var mappedPicture in mappedPictureList) {
+        await db.insert(TABLE_PICTURE, mappedPicture);
+      }
+    }
+    // Update event
     return await db.update(TABLE_EVENT, mappedEvent,
         where: '$COLUMN_SRC_TYPE = ? AND $COLUMN_SRC_ID = ?',
-        whereArgs: [event.srcType, event.srcId]);
+        whereArgs: [newEvent.srcType, newEvent.srcId]);
   }
 
   /// Returns the number of rows affected.
   Future<int> deleteEvent(
       String srcType, String srcId, Directory tempDir) async {
+    // Delete pictures
     _deleteTourismPicture(srcType, srcId, tempDir);
+    // Delete event
     final db = await database;
     return await db.delete(TABLE_EVENT,
         where: '$COLUMN_SRC_TYPE = ? AND $COLUMN_SRC_ID = ?',
