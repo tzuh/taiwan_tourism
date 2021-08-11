@@ -1,12 +1,10 @@
 import 'dart:convert';
 import 'dart:io';
 import 'dart:math';
-
 import 'package:flutter/material.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:taiwantourism/helper/preference_helper.dart';
 import 'package:taiwantourism/util/network_util.dart';
-
 import 'constants.dart';
 import 'helper/database_helper.dart';
 import 'helper/ptx_helper.dart';
@@ -19,7 +17,6 @@ enum AlertStatus {
   LOCK,
   IS_ONLINE,
   IS_OFFLINE,
-  IS_PROGRESSING,
   SEVER_ERROR,
 }
 

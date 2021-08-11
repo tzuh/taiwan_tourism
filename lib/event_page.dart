@@ -142,10 +142,11 @@ class _EventPageState extends State<EventPage> {
                                 iconSize: Constants.DIMEN_ICON_BUTTON,
                                 onPressed: () async {
                                   String address = widget.event.address;
-                                  if (!address
-                                      .startsWith(widget.event.cityId)) {
-                                    address =
-                                        '${widget.event.cityId} ' + address;
+                                  String city = Constants.CITY_ID_TO_STRING[
+                                          widget.event.cityId] ??
+                                      '';
+                                  if (!address.startsWith(city)) {
+                                    address = '$city ' + address;
                                   }
                                   String query = Uri.encodeComponent(address);
                                   String url =
@@ -239,6 +240,7 @@ class _EventPageState extends State<EventPage> {
                             ),
                           ),
                           Container(
+                              alignment: Alignment.center,
                               margin: EdgeInsets.only(
                                   top: Constants.DIMEN_PRIMARY_MARGIN / 2),
                               child: Text(
@@ -249,8 +251,8 @@ class _EventPageState extends State<EventPage> {
                                   fontSize: 14,
                                   color: Constants.COLOR_THEME_BLACK,
                                 ),
-                                textAlign: TextAlign.center,
-                                maxLines: 2,
+                                textAlign: TextAlign.left,
+                                maxLines: 6,
                               ))
                         ],
                       ),
@@ -280,6 +282,7 @@ class _EventPageState extends State<EventPage> {
                             ),
                           ),
                           Container(
+                              alignment: Alignment.center,
                               margin: EdgeInsets.only(
                                   top: Constants.DIMEN_PRIMARY_MARGIN / 2),
                               child: Text(
@@ -290,8 +293,8 @@ class _EventPageState extends State<EventPage> {
                                   fontSize: 14,
                                   color: Constants.COLOR_THEME_BLACK,
                                 ),
-                                textAlign: TextAlign.center,
-                                maxLines: 2,
+                                textAlign: TextAlign.left,
+                                maxLines: 6,
                               ))
                         ],
                       ),
@@ -321,6 +324,7 @@ class _EventPageState extends State<EventPage> {
                             ),
                           ),
                           Container(
+                              alignment: Alignment.center,
                               margin: EdgeInsets.only(
                                   top: Constants.DIMEN_PRIMARY_MARGIN / 2),
                               child: Text(
@@ -331,8 +335,8 @@ class _EventPageState extends State<EventPage> {
                                   fontSize: 14,
                                   color: Constants.COLOR_THEME_BLACK,
                                 ),
-                                textAlign: TextAlign.center,
-                                maxLines: 2,
+                                textAlign: TextAlign.left,
+                                maxLines: 6,
                               ))
                         ],
                       ),

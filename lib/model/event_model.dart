@@ -63,6 +63,11 @@ class EventModel {
   });
 
   factory EventModel.fromPtx(PtxActivityTourismInfo ptx) {
+    bool isEnglish(String str) {
+      final validChars = RegExp(r'^[a-zA-Z0-9_\-=@,\.; ]+$');
+      return validChars.hasMatch(str);
+    }
+
     String fixString(String? str) {
       if (str == null || str.trim().isEmpty) {
         return '';
@@ -70,6 +75,14 @@ class EventModel {
         return '';
       } else {
         return str.trim();
+      }
+    }
+
+    String fixLocation(String location) {
+      if (isEnglish(location)) {
+        return Constants.CITY_ID_TO_STRING[location] ?? '';
+      } else {
+        return location;
       }
     }
 
@@ -178,7 +191,7 @@ class EventModel {
       name: fixString(ptx.name),
       description: fixString(ptx.description),
       participation: fixString(ptx.participation),
-      location: fixString(ptx.location),
+      location: fixLocation(fixString(ptx.location)),
       address: fixString(ptx.address),
       phone: fixPhoneNumber(fixString(ptx.phone)),
       organizer: fixString(ptx.organizer),
@@ -222,9 +235,9 @@ class EventModel {
       DatabaseHelper.COLUMN_PHONE: phone,
       DatabaseHelper.COLUMN_ORGANIZER: organizer,
       DatabaseHelper.COLUMN_START_TIME:
-          DateFormat(Constants.EXPRESSION_PTX_DATA).format(startTime),
+          DateFormat(Constants.EXPRESSION_ISO8601_UTC).format(startTime),
       DatabaseHelper.COLUMN_END_TIME:
-          DateFormat(Constants.EXPRESSION_PTX_DATA).format(endTime),
+          DateFormat(Constants.EXPRESSION_ISO8601_UTC).format(endTime),
       DatabaseHelper.COLUMN_CYCLE: cycle,
       DatabaseHelper.COLUMN_NON_CYCLE: nonCycle,
       DatabaseHelper.COLUMN_WEBSITE_URL: websiteUrl,
@@ -240,9 +253,10 @@ class EventModel {
       DatabaseHelper.COLUMN_REMARKS: remarks,
       DatabaseHelper.COLUMN_CITY_ID: cityId,
       DatabaseHelper.COLUMN_SRC_UPDATE_TIME:
-          DateFormat(Constants.EXPRESSION_PTX_DATA).format(originalUpdateTime),
+          DateFormat(Constants.EXPRESSION_ISO8601_UTC)
+              .format(originalUpdateTime),
       DatabaseHelper.COLUMN_PTX_UPDATE_TIME:
-          DateFormat(Constants.EXPRESSION_PTX_DATA).format(srcUpdateTime),
+          DateFormat(Constants.EXPRESSION_ISO8601_UTC).format(srcUpdateTime),
       DatabaseHelper.COLUMN_STATUS: status,
     };
     if (dbId >= 0) {
@@ -262,9 +276,9 @@ class EventModel {
     address = map[DatabaseHelper.COLUMN_ADDRESS];
     phone = map[DatabaseHelper.COLUMN_PHONE];
     organizer = map[DatabaseHelper.COLUMN_ORGANIZER];
-    startTime = DateFormat(Constants.EXPRESSION_PTX_DATA)
+    startTime = DateFormat(Constants.EXPRESSION_ISO8601_UTC)
         .parse(map[DatabaseHelper.COLUMN_START_TIME], true);
-    endTime = DateFormat(Constants.EXPRESSION_PTX_DATA)
+    endTime = DateFormat(Constants.EXPRESSION_ISO8601_UTC)
         .parse(map[DatabaseHelper.COLUMN_END_TIME], true);
     cycle = map[DatabaseHelper.COLUMN_CYCLE];
     nonCycle = map[DatabaseHelper.COLUMN_NON_CYCLE];
@@ -282,9 +296,9 @@ class EventModel {
     charge = map[DatabaseHelper.COLUMN_CHARGE];
     remarks = map[DatabaseHelper.COLUMN_REMARKS];
     cityId = map[DatabaseHelper.COLUMN_CITY_ID];
-    originalUpdateTime = DateFormat(Constants.EXPRESSION_PTX_DATA)
+    originalUpdateTime = DateFormat(Constants.EXPRESSION_ISO8601_UTC)
         .parse(map[DatabaseHelper.COLUMN_SRC_UPDATE_TIME], true);
-    srcUpdateTime = DateFormat(Constants.EXPRESSION_PTX_DATA)
+    srcUpdateTime = DateFormat(Constants.EXPRESSION_ISO8601_UTC)
         .parse(map[DatabaseHelper.COLUMN_PTX_UPDATE_TIME], true);
     status = map[DatabaseHelper.COLUMN_STATUS];
   }

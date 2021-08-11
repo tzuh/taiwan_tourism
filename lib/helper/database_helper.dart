@@ -1,11 +1,11 @@
 import 'dart:io';
-import 'package:intl/intl.dart';
 import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:taiwantourism/model/event_model.dart';
 import '../constants.dart';
 
 class DatabaseHelper {
+  static const String DATABASE_NAME = "taiwan_tourism.db";
   static const String TABLE_EVENT = "event";
   static const String TABLE_PICTURE = "picture";
   static const String COLUMN_ID = "id";
@@ -40,9 +40,6 @@ class DatabaseHelper {
   static const String COLUMN_URL = "url";
   static const String COLUMN_NUMBER = "number";
 
-  static final DateFormat dailyMemoDateFormat =
-      DateFormat(Constants.EXPRESSION_ISO8601_UTC);
-
   DatabaseHelper._(); // Private constructor
   static final DatabaseHelper dh = DatabaseHelper._();
   static Database? _database;
@@ -51,9 +48,15 @@ class DatabaseHelper {
     return _database ??= await _initiateDatabase();
   }
 
+  Future<void> closeDatabase() async {
+    final db = await database;
+    await db.close();
+    _database = null;
+  }
+
   Future<Database> _initiateDatabase() async {
     String path = await getDatabasesPath();
-    return await openDatabase(join(path, 'taiwan_tourism.db'), version: 1,
+    return await openDatabase(join(path, DATABASE_NAME), version: 1,
         onCreate: (Database database, int version) async {
       database.execute('CREATE TABLE $TABLE_EVENT ('
           '$COLUMN_ID INTEGER PRIMARY KEY,'
