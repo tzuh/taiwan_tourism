@@ -234,10 +234,8 @@ class EventModel {
       DatabaseHelper.COLUMN_ADDRESS: address,
       DatabaseHelper.COLUMN_PHONE: phone,
       DatabaseHelper.COLUMN_ORGANIZER: organizer,
-      DatabaseHelper.COLUMN_START_TIME:
-          DateFormat(Constants.EXPRESSION_ISO8601_UTC).format(startTime),
-      DatabaseHelper.COLUMN_END_TIME:
-          DateFormat(Constants.EXPRESSION_ISO8601_UTC).format(endTime),
+      DatabaseHelper.COLUMN_START_TIME: startTime.toIso8601String(),
+      DatabaseHelper.COLUMN_END_TIME: endTime.toIso8601String(),
       DatabaseHelper.COLUMN_CYCLE: cycle,
       DatabaseHelper.COLUMN_NON_CYCLE: nonCycle,
       DatabaseHelper.COLUMN_WEBSITE_URL: websiteUrl,
@@ -253,10 +251,8 @@ class EventModel {
       DatabaseHelper.COLUMN_REMARKS: remarks,
       DatabaseHelper.COLUMN_CITY_ID: cityId,
       DatabaseHelper.COLUMN_SRC_UPDATE_TIME:
-          DateFormat(Constants.EXPRESSION_ISO8601_UTC)
-              .format(originalUpdateTime),
-      DatabaseHelper.COLUMN_PTX_UPDATE_TIME:
-          DateFormat(Constants.EXPRESSION_ISO8601_UTC).format(srcUpdateTime),
+          originalUpdateTime.toIso8601String(),
+      DatabaseHelper.COLUMN_PTX_UPDATE_TIME: srcUpdateTime.toIso8601String(),
       DatabaseHelper.COLUMN_STATUS: status,
     };
     if (dbId >= 0) {
@@ -276,10 +272,8 @@ class EventModel {
     address = map[DatabaseHelper.COLUMN_ADDRESS];
     phone = map[DatabaseHelper.COLUMN_PHONE];
     organizer = map[DatabaseHelper.COLUMN_ORGANIZER];
-    startTime = DateFormat(Constants.EXPRESSION_ISO8601_UTC)
-        .parse(map[DatabaseHelper.COLUMN_START_TIME], true);
-    endTime = DateFormat(Constants.EXPRESSION_ISO8601_UTC)
-        .parse(map[DatabaseHelper.COLUMN_END_TIME], true);
+    startTime = DateTime.parse(map[DatabaseHelper.COLUMN_START_TIME]);
+    endTime = DateTime.parse(map[DatabaseHelper.COLUMN_END_TIME]);
     cycle = map[DatabaseHelper.COLUMN_CYCLE];
     nonCycle = map[DatabaseHelper.COLUMN_NON_CYCLE];
     websiteUrl = map[DatabaseHelper.COLUMN_WEBSITE_URL];
@@ -296,10 +290,9 @@ class EventModel {
     charge = map[DatabaseHelper.COLUMN_CHARGE];
     remarks = map[DatabaseHelper.COLUMN_REMARKS];
     cityId = map[DatabaseHelper.COLUMN_CITY_ID];
-    originalUpdateTime = DateFormat(Constants.EXPRESSION_ISO8601_UTC)
-        .parse(map[DatabaseHelper.COLUMN_SRC_UPDATE_TIME], true);
-    srcUpdateTime = DateFormat(Constants.EXPRESSION_ISO8601_UTC)
-        .parse(map[DatabaseHelper.COLUMN_PTX_UPDATE_TIME], true);
+    originalUpdateTime =
+        DateTime.parse(map[DatabaseHelper.COLUMN_SRC_UPDATE_TIME]);
+    srcUpdateTime = DateTime.parse(map[DatabaseHelper.COLUMN_PTX_UPDATE_TIME]);
     status = map[DatabaseHelper.COLUMN_STATUS];
   }
 }

@@ -203,13 +203,20 @@ class _SettingPageState extends State<SettingPage> {
     } else if (Platform.isIOS) {
       appDocDir = await getApplicationDocumentsDirectory();
     }
-    print('appDocDir: $appDocDir');
     if (appDocDir != null) {
       String dbUrl =
           join(await getDatabasesPath(), DatabaseHelper.DATABASE_NAME);
-      print('dbUrl: $dbUrl');
-      await DatabaseHelper.dh.closeDatabase();
       attachmentPath = join(appDocDir.path, DatabaseHelper.DATABASE_NAME);
+      final file = File(attachmentPath);
+      bool exists = await file.exists();
+      if (exists) {
+        try {
+          await file.delete();
+        } catch (e) {
+          print('Exception: $e');
+        }
+      }
+      await DatabaseHelper.dh.closeDatabase();
       await File(dbUrl).copy(attachmentPath);
     }
     // Get the device info
@@ -220,20 +227,16 @@ class _SettingPageState extends State<SettingPage> {
     String deviceInfoStr = '';
     if (Platform.isAndroid) {
       AndroidDeviceInfo androidInfo = await deviceInfo.androidInfo;
-      deviceInfoStr = '軟體名稱：${_packageInfo!.appName}';
-      deviceInfoStr += '\n軟體版本：${_packageInfo!.version}';
-      deviceInfoStr += '\n裝置名稱：${androidInfo.brand} (${androidInfo.model})';
+      deviceInfoStr = '軟體：[${_packageInfo!.appName}][${_packageInfo!.version}]';
       deviceInfoStr +=
-          '\n系統版本：${androidInfo.version.release} (${androidInfo.version.sdkInt})';
-      deviceInfoStr += '\n時間：$time (UTC${tOffset >= 0 ? '+' : ''}$tOffset)';
+          '\n裝置：[${androidInfo.brand}][${androidInfo.model}][${androidInfo.version.release}][${androidInfo.version.sdkInt}]';
+      deviceInfoStr += '\n時間：[$time (UTC${tOffset >= 0 ? '+' : ''}$tOffset)]';
     } else if (Platform.isIOS) {
       IosDeviceInfo iosInfo = await deviceInfo.iosInfo;
-      deviceInfoStr = '軟體名稱：${_packageInfo!.appName}';
-      deviceInfoStr += '\n軟體版本：${_packageInfo!.version}';
-      deviceInfoStr += '\n裝置名稱：${iosInfo.name}(${iosInfo.model})';
-      deviceInfoStr += '\n系統版本：${iosInfo.systemVersion}';
-      deviceInfoStr += '\n時間：$time (UTC${tOffset >= 0 ? '+' : ''}$tOffset))';
-      print('Running on ${iosInfo.utsname.machine}');
+      deviceInfoStr = '軟體：[${_packageInfo!.appName}][${_packageInfo!.version}]';
+      deviceInfoStr +=
+          '\n裝置：[${iosInfo.model}][${iosInfo.utsname.machine}][${iosInfo.systemVersion}]';
+      deviceInfoStr += '\n時間：[$time (UTC${tOffset >= 0 ? '+' : ''}$tOffset)]';
     }
     deviceInfoStr += '\n';
     deviceInfoStr += '\n(本信件並不會收集您的隱私資訊，感謝您的回饋讓此軟體有機會更好。)';

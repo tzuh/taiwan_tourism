@@ -89,7 +89,7 @@ class Constants {
   static const String EXPRESSION_PTX_HTTP = 'EEE, dd MMM yyyy HH:mm:ss GMT';
   static const String EXPRESSION_PTX_DATA = 'yyyy-MM-ddTHH:mm:ss';
   static const String EXPRESSION_ISO8601 = 'yyyy-MM-ddTHH:mm:ss+HH:mm';
-  static const String EXPRESSION_ISO8601_UTC = 'yyyy-MM-ddTHH:mm:ssZ';
+  static const String EXPRESSION_ISO8601_UTC = 'yyyy-MM-ddTHH:mm:ss.mmmuuuZ';
   static const String EXPRESSION_DISPLAY = 'yyyy/MM/dd HH:mm:ss';
 
   /// Datetime
