@@ -151,11 +151,15 @@ class Constants {
   static const String STRING_PRESS_AGAIN_TO_QUIT = '再按一次返回鍵退出';
   static const String STRING_NO_SUITABLE_CONTENT = '沒有符合條件的資料';
   static const String STRING_SHOW_EXPIRED_EVENTS = '顯示過期的活動';
-  static const String STRING_SORT_BY_START_TIME = '依開始日期排序';
-  static const String STRING_SORT_BY_END_TIME = '依結束日期排序';
   static const String STRING_EVENT_EXPIRED = '活動已結束';
   static const String STRING_EVENT_RUNNING = '活動進行中';
   static const String STRING_BEGIN_AFTER_DAYS = '天後開始';
   static const String STRING_BEGIN_AFTER_WEEKS = '週後開始';
   static const String STRING_NEW = 'NEW';
+
+  /// String Array for displaying
+  static const Map<int, String> STRING_ARRAY_EVENT_SORT_BY = {
+    EVENT_SORT_BY_START_TIME: '依開始日期排序',
+    EVENT_SORT_BY_END_TIME: '依結束日期排序',
+  };
 }

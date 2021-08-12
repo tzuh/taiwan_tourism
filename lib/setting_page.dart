@@ -89,16 +89,15 @@ class _SettingPageState extends State<SettingPage> {
               child: DropdownButtonHideUnderline(
                 child: DropdownButton(
                   value: _eventSortBy,
-                  items: [
-                    DropdownMenuItem(
-                      child: Text(Constants.STRING_SORT_BY_START_TIME),
-                      value: Constants.EVENT_SORT_BY_START_TIME,
-                    ),
-                    DropdownMenuItem(
-                      child: Text(Constants.STRING_SORT_BY_END_TIME),
-                      value: Constants.EVENT_SORT_BY_END_TIME,
-                    )
-                  ],
+                  items: Constants.STRING_ARRAY_EVENT_SORT_BY.keys
+                      .map((key) => new DropdownMenuItem(
+                            key: ValueKey(
+                                Constants.STRING_ARRAY_EVENT_SORT_BY[key]!),
+                            value: key,
+                            child: Text(
+                                Constants.STRING_ARRAY_EVENT_SORT_BY[key]!),
+                          ))
+                      .toList(),
                   onChanged: (value) {
                     setState(() {
                       _eventSortBy = value as int;
