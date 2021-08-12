@@ -12,7 +12,7 @@ import 'helper/database_helper.dart';
 import 'helper/preference_helper.dart';
 import 'package:network_to_file_image/network_to_file_image.dart';
 
-enum AlertStatus { NONE, IS_OFFLINE, SEVER_ERROR }
+enum AlertStatus { NONE, IS_OFFLINE }
 
 class HomePage extends StatefulWidget {
   final String currentCity;
@@ -60,10 +60,6 @@ class _HomePageState extends State<HomePage> {
         case AlertStatus.IS_OFFLINE:
           showAlertDialog(context, Constants.STRING_OFFLINE,
               Constants.STRING_CHECK_CONNECTION);
-          break;
-        case AlertStatus.SEVER_ERROR:
-          showAlertDialog(context, Constants.STRING_SEVER_ERROR,
-              Constants.STRING_TRY_LATER);
           break;
         default:
           break;
