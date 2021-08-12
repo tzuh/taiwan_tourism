@@ -86,6 +86,14 @@ class EventModel {
       }
     }
 
+    String fixAddress(String address) {
+      if (isEnglish(address)) {
+        return Constants.CITY_ID_TO_STRING[address] ?? '';
+      } else {
+        return address;
+      }
+    }
+
     String fixCity(String city) {
       return Constants.CITY_STRING_TO_ID[city.replaceAll('台', '臺')] ?? '';
     }
@@ -192,7 +200,7 @@ class EventModel {
       description: fixString(ptx.description),
       participation: fixString(ptx.participation),
       location: fixLocation(fixString(ptx.location)),
-      address: fixString(ptx.address),
+      address: fixAddress(fixString(ptx.address)),
       phone: fixPhoneNumber(fixString(ptx.phone)),
       organizer: fixString(ptx.organizer),
       startTime: fixedTwStartTime.add(Duration(hours: -8)),
