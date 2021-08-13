@@ -119,7 +119,7 @@ class _EventPageState extends State<EventPage> {
                             horizontal: Constants.DIMEN_PRIMARY_MARGIN,
                             vertical: Constants.DIMEN_PRIMARY_MARGIN / 2),
                         child: SelectableText(
-                          '${widget.event.phone}',
+                          '${getPhoneNumberString(widget.event.phone)}',
                           style: TextStyle(
                             fontSize: 16,
                             color: Constants.COLOR_THEME_BLACK,
@@ -187,9 +187,11 @@ class _EventPageState extends State<EventPage> {
                                 alignment: Alignment.center,
                                 iconSize: Constants.DIMEN_ICON_BUTTON,
                                 onPressed: () async {
-                                  if (await launch(
-                                      'tel:' + widget.event.phone)) {
-                                    throw 'Could not launch ${widget.event.phone}';
+                                  String phoneNum =
+                                      getPhoneNumberString(widget.event.phone)
+                                          .replaceAll('-', '');
+                                  if (await launch('tel:' + phoneNum)) {
+                                    throw 'Could not launch $phoneNum';
                                   }
                                 },
                                 icon: Icon(
@@ -370,6 +372,17 @@ class _EventPageState extends State<EventPage> {
             ),
           ),
         ));
+  }
+
+  String getPhoneNumberString(String phoneNum) {
+    if (phoneNum.startsWith('+886-')) {
+      phoneNum = phoneNum.substring(5);
+      return '0' + phoneNum;
+    } else if (phoneNum.startsWith('+') || phoneNum.startsWith('0')) {
+      return phoneNum;
+    } else {
+      return '0' + phoneNum;
+    }
   }
 
   String getEventDateString(DateTime startDateTime, DateTime endDateTime) {

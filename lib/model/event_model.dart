@@ -113,10 +113,13 @@ class EventModel {
 
     String fixPhoneNumber(String phoneNum) {
       if (phoneNum.isNotEmpty) {
-        if (phoneNum.startsWith('886-')) {
-          return phoneNum.substring(4);
-        } else if (phoneNum.startsWith('+886-')) {
-          return phoneNum.substring(5);
+        if (phoneNum.startsWith('+886') || phoneNum.startsWith('886-')) {
+          phoneNum = phoneNum.substring(4);
+          return '+886-' + phoneNum;
+        } else if (phoneNum.startsWith('+')) {
+          return phoneNum;
+        } else {
+          return '+886-' + phoneNum;
         }
       }
       return phoneNum;
