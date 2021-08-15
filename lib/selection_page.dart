@@ -133,8 +133,7 @@ class _SelectionPageState extends State<SelectionPage>
           ),
           child: Container(
             padding: EdgeInsets.all(0),
-            margin: EdgeInsets.only(
-                top: _screenHeight * 0.03, bottom: _screenHeight * 0.02),
+            margin: EdgeInsets.all(0),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
