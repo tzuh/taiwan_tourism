@@ -17,6 +17,13 @@ class MyApp extends StatelessWidget {
         primarySwatch: Colors.blueGrey,
       ),
       home: SelectionPage(),
+      builder: (context, child) {
+        final scale = MediaQuery.of(context).textScaleFactor.clamp(1.0, 1.2);
+        return MediaQuery(
+          data: MediaQuery.of(context).copyWith(textScaleFactor: scale),
+          child: child!,
+        );
+      },
     );
   }
 }

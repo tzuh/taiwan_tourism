@@ -128,7 +128,7 @@ class DatabaseHelper {
         try {
           await file.delete();
         } catch (e) {
-          print('Exception: $e');
+          print(e);
         }
       }
     }

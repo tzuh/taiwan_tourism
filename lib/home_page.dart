@@ -1,18 +1,20 @@
 import 'dart:io';
-import 'package:path/path.dart';
+import 'package:path/path.dart' as path;
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:taiwantourism/event_page.dart';
 import 'package:taiwantourism/model/event_model.dart';
 import 'package:taiwantourism/setting_page.dart';
-import 'package:taiwantourism/util/network_util.dart';
 import 'constants.dart';
 import 'helper/database_helper.dart';
 import 'helper/preference_helper.dart';
 import 'package:network_to_file_image/network_to_file_image.dart';
 
-enum AlertStatus { NONE, IS_OFFLINE }
+enum AlertStatus {
+  NONE,
+  READ,
+}
 
 class HomePage extends StatefulWidget {
   final String currentCity;
@@ -36,19 +38,7 @@ class _HomePageState extends State<HomePage> {
   void initState() {
     super.initState();
     initVariables().then((_) {
-      NetworkUtil.isAvailable().then((isAvailable) {
-        if (!isAvailable) {
-          _alertStatus = AlertStatus.IS_OFFLINE;
-        }
-        DatabaseHelper.dh
-            .getEventsByCity(Constants.SOURCE_PTX, widget.currentCity)
-            .then((eventList) {
-          _eventList.clear();
-          _eventList = eventList;
-          sortEventsBySetting();
-          setState(() {});
-        });
-      });
+      setState(() => _alertStatus = AlertStatus.READ);
     });
   }
 
@@ -57,9 +47,8 @@ class _HomePageState extends State<HomePage> {
     var screenWidth = MediaQuery.of(context).size.width;
     Future.delayed(Duration.zero, () {
       switch (_alertStatus) {
-        case AlertStatus.IS_OFFLINE:
-          showAlertDialog(context, Constants.STRING_OFFLINE,
-              Constants.STRING_CHECK_CONNECTION);
+        case AlertStatus.READ:
+          prepareData();
           break;
         default:
           break;
@@ -176,7 +165,7 @@ class _HomePageState extends State<HomePage> {
                                   ? NetworkToFileImage(
                                       url: thisEvent
                                           .picture.ptxPictureList[0].url,
-                                      file: File(join(widget.tempDir.path,
+                                      file: File(path.join(widget.tempDir.path,
                                           '${thisEvent.srcType}_${thisEvent.srcId}_1.jpg')),
                                       debug: false,
                                     )
@@ -190,7 +179,7 @@ class _HomePageState extends State<HomePage> {
                               Align(
                                 alignment: Alignment.bottomCenter,
                                 child: Container(
-                                  height: screenWidth * 0.25,
+                                  height: screenWidth * 0.28,
                                   width: double.infinity,
                                   decoration: BoxDecoration(
                                     borderRadius: BorderRadius.only(
@@ -353,12 +342,12 @@ class _HomePageState extends State<HomePage> {
     _eventSortBy = await PreferenceHelper.getEventSortBy();
   }
 
-  void getEventsByCity(String cityId) {
+  void prepareData() {
     DatabaseHelper.dh
-        .getEventsByCity(Constants.SOURCE_PTX, cityId)
-        .then((value) {
+        .getEventsByCity(Constants.SOURCE_PTX, widget.currentCity)
+        .then((eventList) {
       _eventList.clear();
-      _eventList = value;
+      _eventList = eventList;
       sortEventsBySetting();
       setState(() {});
     });
@@ -396,28 +385,6 @@ class _HomePageState extends State<HomePage> {
       _eventListForDisplay += oldEventList;
     }
     _showNoContent = _eventListForDisplay.length == 0;
-  }
-
-  showAlertDialog(BuildContext context, String title, String content) {
-    AlertDialog dialog = AlertDialog(
-      title: Text(title),
-      content: Text(content),
-      backgroundColor: Constants.COLOR_THEME_DARK_WHITE,
-      actions: [
-        TextButton(
-          child: Text(Constants.STRING_OK),
-          onPressed: () => Navigator.pop(context),
-        ),
-      ],
-    );
-    showDialog(
-      context: context,
-      barrierColor: Constants.COLOR_THEME_TRANSPARENT_BLACK,
-      barrierDismissible: false,
-      builder: (BuildContext context) {
-        return dialog;
-      },
-    );
   }
 
   String getEventDateString(DateTime startDateTime, DateTime endDateTime) {

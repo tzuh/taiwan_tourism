@@ -144,13 +144,14 @@ class Constants {
   static const String STRING_ORGANIZER = '主辦單位：';
   static const String STRING_UPDATE_TIME = '最後更新時間：';
   static const String STRING_OFFLINE = '無法連線';
-  static const String STRING_CHECK_CONNECTION = '請檢查網路設定';
+  static const String STRING_CHECK_CONNECTION = '請檢查網路設定後再試一次';
   static const String STRING_DISCLAIMER = '資料來自交通部PTX平臺　詳情請洽各活動主辦單位';
   static const String STRING_SEVER_ERROR = '伺服器錯誤';
   static const String STRING_TRY_LATER = '請稍後再試';
   static const String STRING_CHECKING_DATA = '正在讀取資料...';
   static const String STRING_UPDATING_DATA = '正在更新資料...';
-  static const String STRING_OK = '確定';
+  static const String STRING_RETRY = '再試一次';
+  static const String STRING_CANCEL = '取消';
   static const String STRING_PRESS_AGAIN_TO_QUIT = '再按一次返回鍵退出';
   static const String STRING_NO_SUITABLE_CONTENT = '沒有符合條件的資料';
   static const String STRING_SHOW_EXPIRED_EVENTS = '顯示過期的活動';

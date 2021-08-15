@@ -1,6 +1,6 @@
 import 'dart:io';
 import 'package:intl/intl.dart';
-import 'package:path/path.dart';
+import 'package:path/path.dart' as path;
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:network_to_file_image/network_to_file_image.dart';
@@ -236,7 +236,7 @@ class _EventPageState extends State<EventPage> {
                               url: hasImage1
                                   ? widget.event.picture.ptxPictureList[0].url
                                   : '',
-                              file: File(join(widget.tempDir.path,
+                              file: File(path.join(widget.tempDir.path,
                                   '${widget.event.srcType}_${widget.event.srcId}_1.jpg')),
                               debug: false,
                             ),
@@ -278,7 +278,7 @@ class _EventPageState extends State<EventPage> {
                               url: hasImage2
                                   ? widget.event.picture.ptxPictureList[1].url
                                   : '',
-                              file: File(join(widget.tempDir.path,
+                              file: File(path.join(widget.tempDir.path,
                                   '${widget.event.srcType}_${widget.event.srcId}_2.jpg')),
                               debug: false,
                             ),
@@ -320,7 +320,7 @@ class _EventPageState extends State<EventPage> {
                               url: hasImage3
                                   ? widget.event.picture.ptxPictureList[2].url
                                   : '',
-                              file: File(join(widget.tempDir.path,
+                              file: File(path.join(widget.tempDir.path,
                                   '${widget.event.srcType}_${widget.event.srcId}_3.jpg')),
                               debug: false,
                             ),

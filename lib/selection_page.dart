@@ -15,7 +15,6 @@ import 'model/ptx_activity_tourism_info.dart';
 enum AlertStatus {
   NONE,
   LOCK,
-  IS_ONLINE,
   IS_OFFLINE,
   SEVER_ERROR,
 }
@@ -27,8 +26,11 @@ class SelectionPage extends StatefulWidget {
   _SelectionPageState createState() => _SelectionPageState();
 }
 
-class _SelectionPageState extends State<SelectionPage> {
+class _SelectionPageState extends State<SelectionPage>
+    with WidgetsBindingObserver {
   late Directory _tempDir;
+  var _autoRetry = true;
+  var _isDialogShowing = false;
   var _selectedCity = '';
   var _ptxLocalEventList = <EventModel>[];
   var _ptxSeverEventList = <EventModel>[];
@@ -38,8 +40,7 @@ class _SelectionPageState extends State<SelectionPage> {
   var _lastPressedBackButton = DateTime.now()
       .toUtc()
       .add(Duration(seconds: -Constants.SECONDS_FOR_QUIT));
-  late double _screenDiagonal;
-  late double _scale;
+  late double _layoutScale;
   late StateSetter _setProgressDialogState;
   double _progress = -1.0;
   String _progressMessage = Constants.STRING_CHECKING_DATA;
@@ -48,17 +49,39 @@ class _SelectionPageState extends State<SelectionPage> {
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance!.addObserver(this);
     initVariables().then((_) {
       setState(() => _alertStatus = AlertStatus.LOCK);
     });
   }
 
   @override
+  void dispose() {
+    WidgetsBinding.instance!.removeObserver(this);
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    print('state: $state');
+    if (state == AppLifecycleState.resumed && _autoRetry) {
+      NetworkUtil.isAvailable().then((isOnline) {
+        if (isOnline) {
+          if (_isDialogShowing) {
+            Navigator.pop(context);
+          }
+          setState(() => _alertStatus = AlertStatus.LOCK);
+        }
+      });
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
-    var screenHeight = MediaQuery.of(context).size.height;
-    var screenWidth = MediaQuery.of(context).size.width;
-    _screenDiagonal = sqrt(pow(screenHeight, 2) + pow(screenWidth, 2));
-    _scale = _screenDiagonal / 900;
+    final _screenHeight = MediaQuery.of(context).size.height;
+    final screenWidth = MediaQuery.of(context).size.width;
+    final _screenDiagonal = sqrt(pow(_screenHeight, 2) + pow(screenWidth, 2));
+    _layoutScale = _screenDiagonal / 900;
 
     Future.delayed(Duration.zero, () {
       switch (_alertStatus) {
@@ -69,16 +92,15 @@ class _SelectionPageState extends State<SelectionPage> {
         case AlertStatus.IS_OFFLINE:
           showAlertDialog(context, Constants.STRING_OFFLINE,
               Constants.STRING_CHECK_CONNECTION);
-          _alertStatus = AlertStatus.NONE;
           break;
         case AlertStatus.SEVER_ERROR:
           showAlertDialog(context, Constants.STRING_SEVER_ERROR,
               Constants.STRING_TRY_LATER);
-          _alertStatus = AlertStatus.NONE;
           break;
         default:
           break;
       }
+      _alertStatus = AlertStatus.NONE;
     });
 
     return WillPopScope(
@@ -101,7 +123,7 @@ class _SelectionPageState extends State<SelectionPage> {
         backgroundColor: Constants.COLOR_THEME_BLUE_GREY,
         body: Container(
           padding: EdgeInsets.all(0),
-          margin: EdgeInsets.symmetric(vertical: screenHeight / 30),
+          margin: EdgeInsets.symmetric(vertical: _screenHeight / 30),
           decoration: BoxDecoration(
             color: Constants.COLOR_THEME_BLUE_GREY,
             image: DecorationImage(
@@ -112,12 +134,9 @@ class _SelectionPageState extends State<SelectionPage> {
           child: Container(
             padding: EdgeInsets.all(0),
             margin: EdgeInsets.only(
-                left: screenWidth * 0.07,
-                right: screenWidth * 0.07,
-                top: screenHeight * 0.03,
-                bottom: screenHeight * 0.02),
+                top: _screenHeight * 0.03, bottom: _screenHeight * 0.02),
             child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Column(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -202,6 +221,7 @@ class _SelectionPageState extends State<SelectionPage> {
         );
       }),
     );
+    _isDialogShowing = true;
     showGeneralDialog(
       context: context,
       barrierColor: Constants.COLOR_THEME_TRANSPARENT_BLACK,
@@ -210,7 +230,7 @@ class _SelectionPageState extends State<SelectionPage> {
       pageBuilder: (_, __, ___) {
         return dialog;
       },
-    );
+    ).then((value) => _isDialogShowing = false);
   }
 
   showAlertDialog(BuildContext context, String title, String content) {
@@ -220,11 +240,21 @@ class _SelectionPageState extends State<SelectionPage> {
       backgroundColor: Constants.COLOR_THEME_DARK_WHITE,
       actions: [
         TextButton(
-          child: Text(Constants.STRING_OK),
-          onPressed: () => Navigator.pop(context),
+          child: Text(Constants.STRING_CANCEL),
+          onPressed: () {
+            Navigator.pop(context);
+          },
+        ),
+        TextButton(
+          child: Text(Constants.STRING_RETRY),
+          onPressed: () {
+            Navigator.pop(context);
+            setState(() => _alertStatus = AlertStatus.LOCK);
+          },
         ),
       ],
     );
+    _isDialogShowing = true;
     showDialog(
       context: context,
       barrierColor: Constants.COLOR_THEME_TRANSPARENT_BLACK,
@@ -232,13 +262,12 @@ class _SelectionPageState extends State<SelectionPage> {
       builder: (BuildContext context) {
         return dialog;
       },
-    );
+    ).then((value) => _isDialogShowing = false);
   }
 
   void prepareData() {
     NetworkUtil.isAvailable().then((isOnline) {
       if (isOnline) {
-        _alertStatus = AlertStatus.IS_ONLINE;
         getEventsFromDatabase().then((_) {
           print('Number of PTX local events: ${_ptxLocalEventList.length}');
           PtxHelper.getPtxEvents(300).then((response) {
@@ -294,9 +323,10 @@ class _SelectionPageState extends State<SelectionPage> {
                     _setProgressDialogState(() => _progress = 1.0);
                     PreferenceHelper.setPtxLastModifiedTime(
                         _ptxLastModifiedTime);
+                    _autoRetry = false;
                     prepareCityLabels();
                     Navigator.pop(context);
-                    setState(() => _alertStatus = AlertStatus.NONE);
+                    setState(() {});
                   });
                 });
               });
@@ -306,15 +336,17 @@ class _SelectionPageState extends State<SelectionPage> {
               getEventsFromDatabase().then((_) {
                 print(
                     'Number of PTX local events: ${_ptxLocalEventList.length}');
+                _autoRetry = false;
                 prepareCityLabels();
                 Navigator.pop(context);
-                setState(() => _alertStatus = AlertStatus.NONE);
+                setState(() {});
               });
             } else {
               // Load events from database
               getEventsFromDatabase().then((_) {
                 print(
                     'Number of PTX local events: ${_ptxLocalEventList.length}');
+                _autoRetry = false;
                 prepareCityLabels();
                 Navigator.pop(context);
                 setState(() => _alertStatus = AlertStatus.SEVER_ERROR);
@@ -412,14 +444,15 @@ class _SelectionPageState extends State<SelectionPage> {
     return Stack(children: [
       Container(
         padding: EdgeInsets.all(0),
-        margin: EdgeInsets.only(left: 32 * _scale, right: 32 * _scale),
+        margin:
+            EdgeInsets.only(left: 32 * _layoutScale, right: 32 * _layoutScale),
         child: OutlinedButton(
           style: ButtonStyle(
             padding: MaterialStateProperty.all<EdgeInsets>(EdgeInsets.only(
-                left: 14 * _scale,
-                right: 14 * _scale,
-                top: 5 * _scale,
-                bottom: 5 * _scale)),
+                left: 14 * _layoutScale,
+                right: 14 * _layoutScale,
+                top: 5 * _layoutScale,
+                bottom: 5 * _layoutScale)),
             shape: MaterialStateProperty.all<RoundedRectangleBorder>(
                 RoundedRectangleBorder(borderRadius: BorderRadius.circular(8))),
             side: MaterialStateProperty.all<BorderSide>(
@@ -428,6 +461,7 @@ class _SelectionPageState extends State<SelectionPage> {
                 Constants.COLOR_THEME_TRANSPARENT_BLACK),
           ),
           onPressed: () {
+            _autoRetry = false;
             _selectedCity = cityId;
             Navigator.push(
               context,
@@ -465,11 +499,11 @@ class _SelectionPageState extends State<SelectionPage> {
           alignment: Alignment.bottomRight,
           margin: EdgeInsets.all(0),
           padding: EdgeInsets.all(0),
-          width: 36 * _scale,
+          width: 36 * _layoutScale,
           child: Container(
             margin: EdgeInsets.all(0),
             padding: EdgeInsets.symmetric(
-                vertical: 3 * _scale, horizontal: 5 * _scale),
+                vertical: 3 * _layoutScale, horizontal: 5 * _layoutScale),
             decoration: BoxDecoration(
               // shape: BoxShape.circle,
               color: _cityHighlightList.contains(cityId)
@@ -485,6 +519,7 @@ class _SelectionPageState extends State<SelectionPage> {
               '${(_cityCountList[cityId] ?? 0)}',
               style:
                   TextStyle(color: Constants.COLOR_THEME_WHITE, fontSize: 14),
+              textAlign: TextAlign.center,
               maxLines: 1,
             ),
           ),
