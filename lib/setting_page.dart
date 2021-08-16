@@ -205,14 +205,14 @@ class _SettingPageState extends State<SettingPage> {
     if (appDocDir != null) {
       String dbUrl =
           join(await getDatabasesPath(), DatabaseHelper.DATABASE_NAME);
-      attachmentPath = join(appDocDir.path, DatabaseHelper.DATABASE_NAME);
+      attachmentPath = join(appDocDir.path, 'backup.db');
       final file = File(attachmentPath);
       bool exists = await file.exists();
       if (exists) {
         try {
           await file.delete();
         } catch (e) {
-          print('Exception: $e');
+          print(e);
         }
       }
       await DatabaseHelper.dh.closeDatabase();

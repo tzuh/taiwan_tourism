@@ -26,11 +26,9 @@ class SelectionPage extends StatefulWidget {
   _SelectionPageState createState() => _SelectionPageState();
 }
 
-class _SelectionPageState extends State<SelectionPage>
-    with WidgetsBindingObserver {
+class _SelectionPageState extends State<SelectionPage> {
   late Directory _tempDir;
   var _autoRetry = true;
-  var _isDialogShowing = false;
   var _selectedCity = '';
   var _ptxLocalEventList = <EventModel>[];
   var _ptxSeverEventList = <EventModel>[];
@@ -40,8 +38,8 @@ class _SelectionPageState extends State<SelectionPage>
   var _lastPressedBackButton = DateTime.now()
       .toUtc()
       .add(Duration(seconds: -Constants.SECONDS_FOR_QUIT));
-  late double _layoutScale;
-  late StateSetter _setProgressDialogState;
+  double _layoutScale = 1.0;
+  StateSetter? _setProgressDialogState;
   double _progress = -1.0;
   String _progressMessage = Constants.STRING_CHECKING_DATA;
   String _ptxLastModifiedTime = '';
@@ -49,31 +47,9 @@ class _SelectionPageState extends State<SelectionPage>
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance!.addObserver(this);
     initVariables().then((_) {
       setState(() => _alertStatus = AlertStatus.LOCK);
     });
-  }
-
-  @override
-  void dispose() {
-    WidgetsBinding.instance!.removeObserver(this);
-    super.dispose();
-  }
-
-  @override
-  void didChangeAppLifecycleState(AppLifecycleState state) {
-    print('state: $state');
-    if (state == AppLifecycleState.resumed && _autoRetry) {
-      NetworkUtil.isAvailable().then((isOnline) {
-        if (isOnline) {
-          if (_isDialogShowing) {
-            Navigator.pop(context);
-          }
-          setState(() => _alertStatus = AlertStatus.LOCK);
-        }
-      });
-    }
   }
 
   @override
@@ -221,7 +197,6 @@ class _SelectionPageState extends State<SelectionPage>
         );
       }),
     );
-    _isDialogShowing = true;
     showGeneralDialog(
       context: context,
       barrierColor: Constants.COLOR_THEME_TRANSPARENT_BLACK,
@@ -230,7 +205,7 @@ class _SelectionPageState extends State<SelectionPage>
       pageBuilder: (_, __, ___) {
         return dialog;
       },
-    ).then((value) => _isDialogShowing = false);
+    );
   }
 
   showAlertDialog(BuildContext context, String title, String content) {
@@ -254,7 +229,6 @@ class _SelectionPageState extends State<SelectionPage>
         ),
       ],
     );
-    _isDialogShowing = true;
     showDialog(
       context: context,
       barrierColor: Constants.COLOR_THEME_TRANSPARENT_BLACK,
@@ -262,7 +236,7 @@ class _SelectionPageState extends State<SelectionPage>
       builder: (BuildContext context) {
         return dialog;
       },
-    ).then((value) => _isDialogShowing = false);
+    );
   }
 
   void prepareData() {
@@ -277,7 +251,9 @@ class _SelectionPageState extends State<SelectionPage>
                       .headers[Constants.PTX_RESPONSE_HEADER_LAST_MODIFIED] ??
                   '';
               _progressMessage = Constants.STRING_UPDATING_DATA;
-              _setProgressDialogState(() => _progress = 0.0);
+              if (_setProgressDialogState != null) {
+                _setProgressDialogState!(() => _progress = 0.0);
+              }
               // Parse data
               List<PtxActivityTourismInfo> list =
                   List<PtxActivityTourismInfo>.from(json
@@ -312,15 +288,21 @@ class _SelectionPageState extends State<SelectionPage>
               print('Number of PTX sever events: ${_ptxSeverEventList.length}');
               // Update database
               updateDatabase().then((activeIdList) {
-                _setProgressDialogState(() => _progress = 0.5);
+                if (_setProgressDialogState != null) {
+                  _setProgressDialogState!(() => _progress = 0.5);
+                }
                 // Remove old events from database
                 deleteOldEventsFromDatabase(activeIdList).then((_) {
-                  _setProgressDialogState(() => _progress = 0.75);
+                  if (_setProgressDialogState != null) {
+                    _setProgressDialogState!(() => _progress = 0.75);
+                  }
                   // Load events from database again
                   getEventsFromDatabase().then((_) {
                     print(
                         'Number of PTX local events: ${_ptxLocalEventList.length}');
-                    _setProgressDialogState(() => _progress = 1.0);
+                    if (_setProgressDialogState != null) {
+                      _setProgressDialogState!(() => _progress = 1.0);
+                    }
                     PreferenceHelper.setPtxLastModifiedTime(
                         _ptxLastModifiedTime);
                     _autoRetry = false;
@@ -407,8 +389,10 @@ class _SelectionPageState extends State<SelectionPage>
         }
         await DatabaseHelper.dh.insertEvent(ptxSeverEvent);
       }
-      _setProgressDialogState(
-          () => _progress = counter * 0.5 / _ptxSeverEventList.length);
+      if (_setProgressDialogState != null) {
+        _setProgressDialogState!(
+            () => _progress = counter * 0.5 / _ptxSeverEventList.length);
+      }
       counter++;
     }
     return activeIdList;
@@ -461,7 +445,6 @@ class _SelectionPageState extends State<SelectionPage>
                 Constants.COLOR_THEME_TRANSPARENT_BLACK),
           ),
           onPressed: () {
-            _autoRetry = false;
             _selectedCity = cityId;
             Navigator.push(
               context,
@@ -472,11 +455,17 @@ class _SelectionPageState extends State<SelectionPage>
                 ),
               ),
             ).then((_) {
-              DatabaseHelper.dh
-                  .getCountOfNewEventByCity(_selectedCity)
-                  .then((count) {
-                if (count == 0) {
-                  setState(() => _cityHighlightList.remove(_selectedCity));
+              NetworkUtil.isAvailable().then((isOnline) {
+                if (isOnline && _autoRetry) {
+                  setState(() => _alertStatus = AlertStatus.LOCK);
+                } else {
+                  DatabaseHelper.dh
+                      .getCountOfNewEventByCity(_selectedCity)
+                      .then((count) {
+                    if (count == 0) {
+                      setState(() => _cityHighlightList.remove(_selectedCity));
+                    }
+                  });
                 }
               });
             });
