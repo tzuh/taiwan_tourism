@@ -96,6 +96,7 @@ class _SelectionPageState extends State<SelectionPage>
         case AlertStatus.SEVER_ERROR:
           showAlertDialog(context, Constants.STRING_SEVER_ERROR,
               Constants.STRING_TRY_LATER);
+          _autoRetry = false;
           break;
         default:
           break;
