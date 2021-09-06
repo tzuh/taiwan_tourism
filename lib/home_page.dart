@@ -322,13 +322,15 @@ class _HomePageState extends State<HomePage> {
               width: double.infinity,
               color: Constants.COLOR_THEME_BLUE_GREY,
               alignment: Alignment.center,
-              child: Text(
-                '${Constants.STRING_DISCLAIMER}',
-                style: TextStyle(
-                  fontSize: 12,
-                  color: Constants.COLOR_THEME_WHITE,
+              child: SafeArea(
+                child: Text(
+                  '${Constants.STRING_DISCLAIMER}',
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: Constants.COLOR_THEME_WHITE,
+                  ),
+                  textAlign: TextAlign.center,
                 ),
-                textAlign: TextAlign.center,
               ),
             ),
           )
