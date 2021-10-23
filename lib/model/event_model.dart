@@ -1,6 +1,6 @@
 import 'package:intl/intl.dart';
 import 'package:taiwantourism/helper/database_helper.dart';
-import 'package:taiwantourism/model/ptx_activity_tourism_info.dart';
+import 'package:taiwantourism/model/ptx/ptx_activity_tourism_info.dart';
 import '../constants.dart';
 
 class EventModel {
@@ -126,7 +126,7 @@ class EventModel {
     }
 
     /// 開始與結束時間的校正：
-    /// 需轉換成台灣時區後，以承辦人員的認知角度轉換成正確資料邏輯。
+    /// 在不受時區影響的狀態下，以台灣承辦人員的認知角度轉換成正確資料邏輯，最後再轉成UTC儲存。
     DateTime twStartTime = new DateFormat(Constants.EXPRESSION_PTX_DATA)
         .parse(fixString(ptx.startTime), true);
     DateTime twEndTime = new DateFormat(Constants.EXPRESSION_PTX_DATA)

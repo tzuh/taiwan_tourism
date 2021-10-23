@@ -1,28 +1,42 @@
 import 'dart:io';
+import 'dart:math';
 import 'package:intl/intl.dart';
 import 'package:path/path.dart' as path;
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:network_to_file_image/network_to_file_image.dart';
+import 'package:taiwantourism/model/location_model.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'constants.dart';
 import 'helper/database_helper.dart';
 import 'model/event_model.dart';
+import 'model/forecast_model.dart';
 
 class EventPage extends StatefulWidget {
   final EventModel event;
   final Directory tempDir;
 
-  EventPage({required this.event, required this.tempDir});
+  final List<LocationModel> locationModelList;
+  final List<ForecastModel> forecastModelList;
+
+  EventPage(
+      {required this.event,
+      required this.tempDir,
+      required this.locationModelList,
+      required this.forecastModelList});
 
   @override
   _EventPageState createState() => _EventPageState();
 }
 
 class _EventPageState extends State<EventPage> {
+  ForecastModel? _firstForecast;
+  ForecastModel? _secondForecast;
+
   @override
   void initState() {
     super.initState();
+    prepareForecasts();
     widget.event.status = Constants.EVENT_STATUS_NONE;
     DatabaseHelper.dh.updateEvent(widget.event, widget.event, widget.tempDir);
   }
@@ -204,6 +218,141 @@ class _EventPageState extends State<EventPage> {
                       ),
                     )),
                 Visibility(
+                  visible: _firstForecast != null && _secondForecast != null,
+                  child: Container(
+                    margin: EdgeInsets.symmetric(
+                        horizontal: Constants.DIMEN_PRIMARY_MARGIN,
+                        vertical: Constants.DIMEN_PRIMARY_MARGIN / 2),
+                    alignment: Alignment.center,
+                    color: Constants.COLOR_TRANSPARENT,
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Container(
+                            width: double.infinity,
+                            alignment: Alignment.center,
+                            decoration: BoxDecoration(
+                              color: Constants.COLOR_THEME_BLUE_GREY,
+                              borderRadius: BorderRadius.only(
+                                  topLeft: Radius.circular(8),
+                                  topRight: Radius.circular(8)),
+                            ),
+                            child: Text(
+                              _firstForecast == null
+                                  ? ''
+                                  : (_firstForecast!.locationName + ' 天氣預報'),
+                              style: TextStyle(
+                                fontSize: 16,
+                                color: Constants.COLOR_THEME_WHITE,
+                              ),
+                              textAlign: TextAlign.center,
+                            )),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceAround,
+                          children: [
+                            Expanded(
+                              flex: 1,
+                              child: Column(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceAround,
+                                children: [
+                                  Container(
+                                    alignment: Alignment.center,
+                                    margin: EdgeInsets.only(
+                                      top: Constants.DIMEN_PRIMARY_MARGIN / 4,
+                                      bottom:
+                                          Constants.DIMEN_PRIMARY_MARGIN / 8,
+                                      right: Constants.DIMEN_PRIMARY_MARGIN / 8,
+                                    ),
+                                    color: Constants.COLOR_THEME_WHITE,
+                                    child: Text(
+                                        getForecastDateString(_firstForecast),
+                                        style: TextStyle(
+                                          fontSize: 16,
+                                          color: Constants.COLOR_THEME_BLACK,
+                                        ),
+                                        textAlign: TextAlign.center),
+                                  ),
+                                  Container(
+                                    alignment: Alignment.center,
+                                    margin: EdgeInsets.only(
+                                      top: Constants.DIMEN_PRIMARY_MARGIN / 8,
+                                      bottom:
+                                          Constants.DIMEN_PRIMARY_MARGIN / 8,
+                                      right: Constants.DIMEN_PRIMARY_MARGIN / 8,
+                                    ),
+                                    decoration: BoxDecoration(
+                                      color: Constants.COLOR_THEME_WHITE,
+                                      borderRadius: BorderRadius.only(
+                                          bottomLeft: Radius.circular(8)),
+                                    ),
+                                    child: Text(
+                                        getForecastContentString(
+                                            _firstForecast),
+                                        style: TextStyle(
+                                          fontSize: 16,
+                                          color: Constants.COLOR_THEME_BLACK,
+                                        ),
+                                        textAlign: TextAlign.center),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            Expanded(
+                              flex: 1,
+                              child: Column(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceAround,
+                                children: [
+                                  Container(
+                                    alignment: Alignment.center,
+                                    margin: EdgeInsets.only(
+                                      top: Constants.DIMEN_PRIMARY_MARGIN / 4,
+                                      bottom:
+                                          Constants.DIMEN_PRIMARY_MARGIN / 8,
+                                      left: Constants.DIMEN_PRIMARY_MARGIN / 8,
+                                    ),
+                                    color: Constants.COLOR_THEME_WHITE,
+                                    child: Text(
+                                        getForecastDateString(_secondForecast),
+                                        style: TextStyle(
+                                          fontSize: 16,
+                                          color: Constants.COLOR_THEME_BLACK,
+                                        ),
+                                        textAlign: TextAlign.center),
+                                  ),
+                                  Container(
+                                    alignment: Alignment.center,
+                                    margin: EdgeInsets.only(
+                                      top: Constants.DIMEN_PRIMARY_MARGIN / 8,
+                                      bottom:
+                                          Constants.DIMEN_PRIMARY_MARGIN / 8,
+                                      left: Constants.DIMEN_PRIMARY_MARGIN / 8,
+                                    ),
+                                    decoration: BoxDecoration(
+                                      color: Constants.COLOR_THEME_WHITE,
+                                      borderRadius: BorderRadius.only(
+                                          bottomRight: Radius.circular(8)),
+                                    ),
+                                    child: Text(
+                                        getForecastContentString(
+                                            _secondForecast),
+                                        style: TextStyle(
+                                          fontSize: 16,
+                                          color: Constants.COLOR_THEME_BLACK,
+                                        ),
+                                        textAlign: TextAlign.center),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+                Visibility(
                     visible: widget.event.organizer.isNotEmpty,
                     child: Container(
                         margin: EdgeInsets.symmetric(
@@ -374,6 +523,91 @@ class _EventPageState extends State<EventPage> {
         ));
   }
 
+  void prepareForecasts() {
+    if (widget.locationModelList.length > 0 &&
+        widget.forecastModelList.length > 0) {
+      final EventModel event = widget.event;
+      // Find current location
+      String currentLocationName = widget.locationModelList[0].name;
+      double shortestDis = double.maxFinite;
+      for (int i = 0; i < widget.locationModelList.length; i++) {
+        final LocationModel model = widget.locationModelList[i];
+        bool foundKeyword = model.name.isNotEmpty &&
+            ((event.address.isNotEmpty && event.address.contains(model.name)) ||
+                (event.location.isNotEmpty &&
+                    event.location.contains(model.name)));
+        bool foundPositions = event.position.positionLat != 0 &&
+            event.position.positionLon != 0 &&
+            model.positionLat != ForecastModel.FLOAT_NONE &&
+            model.positionLon != ForecastModel.FLOAT_NONE;
+        if (foundKeyword) {
+          currentLocationName = model.name;
+          break;
+        } else if (foundPositions) {
+          final x = (model.positionLat - event.position.positionLat).abs();
+          final y = (model.positionLon - event.position.positionLon).abs();
+          final dis = sqrt(x * x + y * y);
+          if (dis < shortestDis) {
+            shortestDis = dis;
+            currentLocationName = model.name;
+          }
+        }
+      }
+      // Find the timestamp
+      DateTime? firstForecastEndTime; // UTC time
+      final hourOfDayStart = 6;
+      final hourOfNightStart = 18;
+      DateTime twNow = DateTime.now().toUtc().add(Duration(hours: 8));
+      DateTime twEventStartTime = event.startTime.add(Duration(hours: 8));
+      DateTime twEventEndTime = event.endTime.add(Duration(hours: 8));
+      if (twNow.isBefore(twEventStartTime)) {
+        firstForecastEndTime = DateTime.utc(twEventStartTime.year,
+                twEventStartTime.month, twEventStartTime.day, hourOfDayStart)
+            .add(Duration(hours: 12))
+            .subtract(Duration(hours: 8));
+      } else if (twNow.isBefore(twEventEndTime)) {
+        if (twNow.hour < hourOfDayStart) {
+          firstForecastEndTime =
+              DateTime.utc(twNow.year, twNow.month, twNow.day, hourOfDayStart)
+                  .subtract(Duration(hours: 8));
+        } else if (twNow.hour < hourOfNightStart) {
+          firstForecastEndTime =
+              DateTime.utc(twNow.year, twNow.month, twNow.day, hourOfNightStart)
+                  .subtract(Duration(hours: 8));
+        } else {
+          firstForecastEndTime =
+              DateTime.utc(twNow.year, twNow.month, twNow.day, hourOfNightStart)
+                  .add(Duration(hours: 12))
+                  .subtract(Duration(hours: 8));
+        }
+      }
+      // Get forecasts
+      if (firstForecastEndTime != null) {
+        for (int tryNext = 0; tryNext < 2; tryNext++) {
+          if (_firstForecast == null) {
+            for (int i = 0; i < widget.forecastModelList.length; i++) {
+              final ForecastModel model = widget.forecastModelList[i];
+              if (currentLocationName == model.locationName) {
+                if (_firstForecast == null) {
+                  if (model.endTime.isAtSameMomentAs(firstForecastEndTime!)) {
+                    _firstForecast = model;
+                  }
+                } else if (_secondForecast == null) {
+                  if (model.endTime.isAtSameMomentAs(
+                      firstForecastEndTime!.add(Duration(hours: 12)))) {
+                    _secondForecast = model;
+                    break;
+                  }
+                }
+              }
+            }
+          }
+          firstForecastEndTime = firstForecastEndTime!.add(Duration(hours: 12));
+        }
+      }
+    }
+  }
+
   String getPhoneNumberString(String phoneNum) {
     if (phoneNum.startsWith('+886-')) {
       phoneNum = phoneNum.substring(5);
@@ -414,5 +648,50 @@ class _EventPageState extends State<EventPage> {
         return '${DateFormat('yyyy/M/d HH:mm').format(localStartDateTime)} - ${DateFormat('yyyy/M/d HH:mm').format(localEndDateTime)}';
       }
     }
+  }
+
+  String getForecastDateString(ForecastModel? forecast) {
+    String outputString = '';
+    if (forecast != null) {
+      final hourOfDayStart = 6;
+      DateTime twNow = DateTime.now().toUtc().add(Duration(hours: 8));
+      DateTime twForecastStartTime = forecast.endTime
+          .subtract(Duration(hours: 12))
+          .add(Duration(hours: 8));
+      if (twNow.year == twForecastStartTime.year &&
+          twNow.month == twForecastStartTime.month &&
+          twNow.day == twForecastStartTime.day) {
+        outputString += '今日';
+      } else {
+        outputString += twForecastStartTime.month.toString() +
+            '/' +
+            twForecastStartTime.day.toString() +
+            ' ';
+      }
+      if (twForecastStartTime.hour == hourOfDayStart) {
+        outputString += '白天';
+      } else {
+        outputString += '晚上';
+      }
+    }
+    return outputString;
+  }
+
+  String getForecastContentString(ForecastModel? forecast) {
+    String outputString = '';
+    if (forecast != null) {
+      if (forecast.minT == forecast.maxT) {
+        outputString += forecast.minT.toString();
+      } else {
+        outputString +=
+            forecast.minT.toString() + '~' + forecast.maxT.toString();
+      }
+      outputString += '°C\n' +
+          forecast.wx +
+          (forecast.pOP == ForecastModel.INT_NONE
+              ? ''
+              : ('\n' + forecast.pOP.toString() + '% '));
+    }
+    return outputString;
   }
 }

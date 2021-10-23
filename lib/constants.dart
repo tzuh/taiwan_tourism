@@ -78,8 +78,41 @@ class Constants {
     '連江縣': LIENCHIANG_COUNTY,
   };
 
+  /// City ID to CWB API ID
+  static const Map<String, String> CWB_API_ID_1WEEK = {
+    TAIPEI: 'F-D0047-063',
+    NEW_TAIPEI: 'F-D0047-071',
+    TAOYUAN: 'F-D0047-007',
+    TAICHUNG: 'F-D0047-075',
+    TAINAN: 'F-D0047-079',
+    KAOHSIUNG: 'F-D0047-067',
+    KEELUNG: 'F-D0047-051',
+    HSINCHU: 'F-D0047-055',
+    HSINCHU_COUNTY: 'F-D0047-011',
+    MIAOLI_COUNTY: 'F-D0047-015',
+    CHANGHUA_COUNTY: 'F-D0047-019',
+    NANTOU_COUNTY: 'F-D0047-023',
+    YUNLIN_COUNTY: 'F-D0047-027',
+    CHIAYI_COUNTY: 'F-D0047-031',
+    CHIAYI: 'F-D0047-059',
+    PINGTUNG_COUNTY: 'F-D0047-035',
+    YILAN_COUNTY: 'F-D0047-003',
+    HUALIEN_COUNTY: 'F-D0047-043',
+    TAITUNG_COUNTY: 'F-D0047-039',
+    KINMEN_COUNTY: 'F-D0047-087',
+    PENGHU_COUNTY: 'F-D0047-047',
+    LIENCHIANG_COUNTY: 'F-D0047-083',
+  };
+
+  /// Weather element types
+  static const String WEATHER_ELEMENT_TYPE_WX = 'Wx'; // 天氣現象
+  static const String WEATHER_ELEMENT_TYPE_MAX_T = 'MaxT'; // 最高溫度 (攝氏度)
+  static const String WEATHER_ELEMENT_TYPE_MIN_T = 'MinT'; // 最低溫度 (攝氏度)
+  static const String WEATHER_ELEMENT_TYPE_POP_12H = 'PoP12h'; // 降雨機率 (%)
+
   /// Source types
   static const String SOURCE_PTX = 'PTX';
+  static const String SOURCE_CWB_DIST_12H = 'CWB_DIST_12H';
 
   /// Event status
   static const int EVENT_STATUS_NONE = 0;
@@ -88,6 +121,7 @@ class Constants {
   /// Formats
   static const String EXPRESSION_PTX_HTTP = 'EEE, dd MMM yyyy HH:mm:ss GMT';
   static const String EXPRESSION_PTX_DATA = 'yyyy-MM-ddTHH:mm:ss';
+  static const String EXPRESSION_CWB_DATA = 'yyyy-MM-dd HH:mm:ss';
   static const String EXPRESSION_ISO8601 = 'yyyy-MM-ddTHH:mm:ss+HH:mm';
   static const String EXPRESSION_ISO8601_UTC = 'yyyy-MM-ddTHH:mm:ss.mmmuuuZ';
   static const String EXPRESSION_DISPLAY = 'yyyy/MM/dd HH:mm:ss';

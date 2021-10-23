@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:io';
 import 'package:path/path.dart' as path;
 import 'package:flutter/cupertino.dart';
@@ -7,9 +8,14 @@ import 'package:taiwantourism/event_page.dart';
 import 'package:taiwantourism/model/event_model.dart';
 import 'package:taiwantourism/setting_page.dart';
 import 'constants.dart';
+import 'helper/cwb_helper.dart';
 import 'helper/database_helper.dart';
 import 'helper/preference_helper.dart';
 import 'package:network_to_file_image/network_to_file_image.dart';
+import 'model/cwb/cwb_locations.dart';
+import 'model/cwb/cwb_response_body.dart';
+import 'model/forecast_model.dart';
+import 'model/location_model.dart';
 
 enum AlertStatus {
   NONE,
@@ -33,6 +39,8 @@ class _HomePageState extends State<HomePage> {
   bool _showExpiredEvents = Constants.PREF_DEF_SHOW_EXPIRED_EVENTS;
   int _eventSortBy = Constants.PREF_DEF_EVENT_SORT_BY;
   bool _showNoContent = false;
+  List<LocationModel> _locationModelList = <LocationModel>[];
+  List<ForecastModel> _forecastModelList = <ForecastModel>[];
 
   @override
   void initState() {
@@ -40,6 +48,7 @@ class _HomePageState extends State<HomePage> {
     initVariables().then((_) {
       setState(() => _alertStatus = AlertStatus.READ);
     });
+    prepareForecastData();
   }
 
   @override
@@ -48,7 +57,7 @@ class _HomePageState extends State<HomePage> {
     Future.delayed(Duration.zero, () {
       switch (_alertStatus) {
         case AlertStatus.READ:
-          prepareData();
+          prepareEventData();
           break;
         default:
           break;
@@ -143,6 +152,8 @@ class _HomePageState extends State<HomePage> {
                               builder: (context) => EventPage(
                                 event: thisEvent,
                                 tempDir: widget.tempDir,
+                                locationModelList: _locationModelList,
+                                forecastModelList: _forecastModelList,
                               ),
                             ),
                           ).then(
@@ -344,7 +355,7 @@ class _HomePageState extends State<HomePage> {
     _eventSortBy = await PreferenceHelper.getEventSortBy();
   }
 
-  void prepareData() {
+  void prepareEventData() {
     DatabaseHelper.dh
         .getEventsByCity(Constants.SOURCE_PTX, widget.currentCity)
         .then((eventList) {
@@ -352,6 +363,24 @@ class _HomePageState extends State<HomePage> {
       _eventList = eventList;
       sortEventsBySetting();
       setState(() {});
+    });
+  }
+
+  void prepareForecastData() {
+    CwbHelper.getCwb1WeekForecastsByCity(widget.currentCity).then((response) {
+      print('CWB status code: ${response.statusCode}');
+      CwbResponseBody cwb =
+          CwbResponseBody.fromJson(json.decode(response.body));
+      if (cwb.success == 'true' &&
+          cwb.records != null &&
+          cwb.records!.locations != null &&
+          cwb.records!.locations!.length >= 1) {
+        CwbLocations? locations = cwb.records!.locations![0];
+        if (locations != null) {
+          _locationModelList = locations.toLocationModelList();
+          _forecastModelList = locations.toForecastModelList();
+        }
+      }
     });
   }
 

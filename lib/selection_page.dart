@@ -10,7 +10,7 @@ import 'helper/database_helper.dart';
 import 'helper/ptx_helper.dart';
 import 'home_page.dart';
 import 'model/event_model.dart';
-import 'model/ptx_activity_tourism_info.dart';
+import 'model/ptx/ptx_activity_tourism_info.dart';
 
 enum AlertStatus {
   NONE,
