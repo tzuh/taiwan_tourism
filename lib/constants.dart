@@ -155,11 +155,11 @@ class Constants {
   static const int EVENT_SORT_BY_END_TIME = 1; // 依結束日期排序
 
   /// HTTP
+  static const int HTTP_STATUS_CODE_OK = 200;
   static const int HTTP_STATUS_CODE_SEVER_ERROR = 500;
 
   /// PTX HTTP
   static const String PTX_RESPONSE_HEADER_LAST_MODIFIED = 'last-modified';
-  static const int PTX_STATUS_CODE_OK = 200;
   static const int PTX_STATUS_CODE_IS_UP_TO_DATE = 304;
   static const int PTX_STATUS_CODE_UNAUTHORIZED = 401; // 未帶簽章，未經授權
   static const int PTX_STATUS_CODE_SIGNATURE_ERROR = 403; // 簽章錯誤

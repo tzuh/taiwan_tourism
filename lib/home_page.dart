@@ -369,16 +369,18 @@ class _HomePageState extends State<HomePage> {
   void prepareForecastData() {
     CwbHelper.getCwb1WeekForecastsByCity(widget.currentCity).then((response) {
       print('CWB status code: ${response.statusCode}');
-      CwbResponseBody cwb =
-          CwbResponseBody.fromJson(json.decode(response.body));
-      if (cwb.success == 'true' &&
-          cwb.records != null &&
-          cwb.records!.locations != null &&
-          cwb.records!.locations!.length >= 1) {
-        CwbLocations? locations = cwb.records!.locations![0];
-        if (locations != null) {
-          _locationModelList = locations.toLocationModelList();
-          _forecastModelList = locations.toForecastModelList();
+      if (response.statusCode == Constants.HTTP_STATUS_CODE_OK) {
+        // Parse data
+        CwbResponseBody cwb =
+            CwbResponseBody.fromJson(json.decode(response.body));
+        if (cwb.records != null &&
+            cwb.records!.locations != null &&
+            cwb.records!.locations!.length >= 1) {
+          CwbLocations? locations = cwb.records!.locations![0];
+          if (locations != null) {
+            _locationModelList = locations.toLocationModelList();
+            _forecastModelList = locations.toForecastModelList();
+          }
         }
       }
     });

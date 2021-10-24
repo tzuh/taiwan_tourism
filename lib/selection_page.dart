@@ -246,7 +246,7 @@ class _SelectionPageState extends State<SelectionPage> {
           print('Number of PTX local events: ${_ptxLocalEventList.length}');
           PtxHelper.getPtxEvents(300).then((response) {
             print('PTX status code: ${response.statusCode}');
-            if (response.statusCode == Constants.PTX_STATUS_CODE_OK) {
+            if (response.statusCode == Constants.HTTP_STATUS_CODE_OK) {
               _ptxLastModifiedTime = response
                       .headers[Constants.PTX_RESPONSE_HEADER_LAST_MODIFIED] ??
                   '';
