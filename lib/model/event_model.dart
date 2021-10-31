@@ -99,16 +99,23 @@ class EventModel {
     }
 
     String fixUrl(String url) {
-      if (url.isNotEmpty && url.split('/').length > 0) {
-        var strList = url.split('/');
-
-        /// Get high quality images from https://www.trimt-nsa.gov.tw/ instead of thumbs.
-        if (strList.length > 3 &&
-            strList[2].compareTo('www.trimt-nsa.gov.tw') == 0) {
-          return url.replaceAll('_thumb', '');
+      var strList = url.split('/');
+      if (strList.length > 0) {
+        var fileName = strList[strList.length - 1].toLowerCase();
+        var extensionList = ['.jpg', '.jpeg', '.png'];
+        for (int i = 0; i < extensionList.length; i++) {
+          if (fileName.endsWith(extensionList[i])) {
+            /// Get high quality images from https://www.trimt-nsa.gov.tw/ instead of thumbs.
+            if (strList.length > 3 &&
+                strList[2].compareTo('www.trimt-nsa.gov.tw') == 0) {
+              return url.replaceAll('_thumb', '');
+            } else {
+              return url;
+            }
+          }
         }
       }
-      return url;
+      return '';
     }
 
     String fixPhoneNumber(String phoneNum) {
