@@ -194,6 +194,11 @@ class Constants {
   static const String STRING_BEGIN_AFTER_DAYS = '天後開始';
   static const String STRING_BEGIN_AFTER_WEEKS = '週後開始';
   static const String STRING_NEW = 'NEW';
+  static const String STRING_FORECAST = '天氣預報';
+  static const String STRING_TODAY = '今日';
+  static const String STRING_DAY = '白天';
+  static const String STRING_NIGHT = '晚上';
+  static const String STRING_DEGREE_CELSIUS = '°C';
 
   /// String Array for displaying
   static const Map<int, String> STRING_ARRAY_EVENT_SORT_BY = {

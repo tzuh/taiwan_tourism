@@ -240,7 +240,9 @@ class _EventPageState extends State<EventPage> {
                             child: Text(
                               _firstForecast == null
                                   ? ''
-                                  : (_firstForecast!.locationName + ' 天氣預報'),
+                                  : (_firstForecast!.locationName +
+                                      ' ' +
+                                      Constants.STRING_FORECAST),
                               style: TextStyle(
                                 fontSize: 16,
                                 color: Constants.COLOR_THEME_WHITE,
@@ -661,7 +663,7 @@ class _EventPageState extends State<EventPage> {
       if (twNow.year == twForecastStartTime.year &&
           twNow.month == twForecastStartTime.month &&
           twNow.day == twForecastStartTime.day) {
-        outputString += '今日';
+        outputString += Constants.STRING_TODAY;
       } else {
         outputString += twForecastStartTime.month.toString() +
             '/' +
@@ -669,9 +671,9 @@ class _EventPageState extends State<EventPage> {
             ' ';
       }
       if (twForecastStartTime.hour == hourOfDayStart) {
-        outputString += '白天';
+        outputString += Constants.STRING_DAY;
       } else {
-        outputString += '晚上';
+        outputString += Constants.STRING_NIGHT;
       }
     }
     return outputString;
@@ -686,7 +688,8 @@ class _EventPageState extends State<EventPage> {
         outputString +=
             forecast.minT.toString() + '~' + forecast.maxT.toString();
       }
-      outputString += '°C\n' +
+      outputString += Constants.STRING_DEGREE_CELSIUS +
+          '\n' +
           forecast.wx +
           (forecast.pOP == ForecastModel.INT_NONE
               ? ''
