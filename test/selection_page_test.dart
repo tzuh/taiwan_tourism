@@ -26,6 +26,6 @@ void main() {
     expect(find.text('連江縣'), findsOneWidget);
     expect(find.text('金門縣'), findsOneWidget);
     expect(find.text('澎湖縣'), findsOneWidget);
-    await tester.pumpAndSettle(const Duration(seconds: 2));
+    await tester.pumpAndSettle(const Duration(seconds: 5));
   });
 }
