@@ -58,8 +58,8 @@ class PtxActivityTourismInfo {
 
   factory PtxActivityTourismInfo.fromJson(Map<String, dynamic> json) {
     return PtxActivityTourismInfo(
-      id: json['ID'],
-      name: json['Name'],
+      id: json['ActivityID'],
+      name: json['ActivityName'],
       description: json['Description'],
       participation: json['Particpation'],
       location: json['Location'],
