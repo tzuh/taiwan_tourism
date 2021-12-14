@@ -12,3 +12,7 @@ This is an app integrates with open APIs from Taiwan MOTC (Ministry of Transport
 
 ## Screenshots (畫面展示)
 ![screenshots](./screenshots.gif)
+
+## Download Links (下載連結)
+[![icon](./link_android.png)](https://play.google.com/store/apps/details?id=com.keydigit.taiwantourism)
+[![icon](./link_ios.png)](https://apps.apple.com/tw/app/%E6%97%85%E9%81%8A%E5%8F%B0%E7%81%A3/id1580544938)

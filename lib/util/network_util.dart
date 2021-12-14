@@ -3,7 +3,7 @@ import 'dart:io';
 class NetworkUtil {
   NetworkUtil._();
 
-  static const Duration TIME_LIMIT = const Duration(seconds: 3);
+  static const Duration TIME_LIMIT = const Duration(seconds: 5);
 
   static Future<bool> isAvailable({Duration timeLimit = TIME_LIMIT}) async {
     try {
