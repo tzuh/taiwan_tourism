@@ -140,8 +140,8 @@ class _HomePageState extends State<HomePage> {
                         .difference(DateTime(now.year, now.month, now.day))
                         .inDays;
                     bool hasImage1 =
-                        thisEvent.picture.ptxPictureList.length >= 1 &&
-                            thisEvent.picture.ptxPictureList[0].url.isNotEmpty;
+                        thisEvent.picture.tdxPictureList.length >= 1 &&
+                            thisEvent.picture.tdxPictureList[0].url.isNotEmpty;
                     return InkWell(
                         onTap: () {
                           _eventListForDisplay[index].status =
@@ -175,7 +175,7 @@ class _HomePageState extends State<HomePage> {
                               image: hasImage1
                                   ? NetworkToFileImage(
                                       url: thisEvent
-                                          .picture.ptxPictureList[0].url,
+                                          .picture.tdxPictureList[0].url,
                                       file: File(path.join(widget.tempDir.path,
                                           '${thisEvent.srcType}_${thisEvent.srcId}_1.jpg')),
                                       debug: false,
@@ -357,7 +357,7 @@ class _HomePageState extends State<HomePage> {
 
   void prepareEventData() {
     DatabaseHelper.dh
-        .getEventsByCity(Constants.SOURCE_PTX, widget.currentCity)
+        .getEventsByCity(Constants.SOURCE_TDX, widget.currentCity)
         .then((eventList) {
       _eventList.clear();
       _eventList = eventList;

@@ -46,12 +46,12 @@ class _EventPageState extends State<EventPage> {
     bool _hasAddress = widget.event.address.isNotEmpty;
     bool _hasPhone = widget.event.phone.isNotEmpty;
     bool _hasWebsite = widget.event.websiteUrl.isNotEmpty;
-    bool hasImage1 = widget.event.picture.ptxPictureList.length >= 1 &&
-        widget.event.picture.ptxPictureList[0].url.isNotEmpty;
-    bool hasImage2 = widget.event.picture.ptxPictureList.length >= 2 &&
-        widget.event.picture.ptxPictureList[1].url.isNotEmpty;
-    bool hasImage3 = widget.event.picture.ptxPictureList.length >= 3 &&
-        widget.event.picture.ptxPictureList[2].url.isNotEmpty;
+    bool hasImage1 = widget.event.picture.tdxPictureList.length >= 1 &&
+        widget.event.picture.tdxPictureList[0].url.isNotEmpty;
+    bool hasImage2 = widget.event.picture.tdxPictureList.length >= 2 &&
+        widget.event.picture.tdxPictureList[1].url.isNotEmpty;
+    bool hasImage3 = widget.event.picture.tdxPictureList.length >= 3 &&
+        widget.event.picture.tdxPictureList[2].url.isNotEmpty;
     return Scaffold(
         backgroundColor: Constants.COLOR_THEME_DARK_WHITE,
         appBar: AppBar(
@@ -385,7 +385,7 @@ class _EventPageState extends State<EventPage> {
                           Image(
                             image: NetworkToFileImage(
                               url: hasImage1
-                                  ? widget.event.picture.ptxPictureList[0].url
+                                  ? widget.event.picture.tdxPictureList[0].url
                                   : '',
                               file: File(path.join(widget.tempDir.path,
                                   '${widget.event.srcType}_${widget.event.srcId}_1.jpg')),
@@ -398,7 +398,7 @@ class _EventPageState extends State<EventPage> {
                                   top: Constants.DIMEN_PRIMARY_MARGIN / 2),
                               child: Text(
                                 hasImage1
-                                    ? '${widget.event.picture.ptxPictureList[0].description}'
+                                    ? '${widget.event.picture.tdxPictureList[0].description}'
                                     : '',
                                 style: TextStyle(
                                   fontSize: 14,
@@ -427,7 +427,7 @@ class _EventPageState extends State<EventPage> {
                           Image(
                             image: NetworkToFileImage(
                               url: hasImage2
-                                  ? widget.event.picture.ptxPictureList[1].url
+                                  ? widget.event.picture.tdxPictureList[1].url
                                   : '',
                               file: File(path.join(widget.tempDir.path,
                                   '${widget.event.srcType}_${widget.event.srcId}_2.jpg')),
@@ -440,7 +440,7 @@ class _EventPageState extends State<EventPage> {
                                   top: Constants.DIMEN_PRIMARY_MARGIN / 2),
                               child: Text(
                                 hasImage2
-                                    ? '${widget.event.picture.ptxPictureList[1].description}'
+                                    ? '${widget.event.picture.tdxPictureList[1].description}'
                                     : '',
                                 style: TextStyle(
                                   fontSize: 14,
@@ -469,7 +469,7 @@ class _EventPageState extends State<EventPage> {
                           Image(
                             image: NetworkToFileImage(
                               url: hasImage3
-                                  ? widget.event.picture.ptxPictureList[2].url
+                                  ? widget.event.picture.tdxPictureList[2].url
                                   : '',
                               file: File(path.join(widget.tempDir.path,
                                   '${widget.event.srcType}_${widget.event.srcId}_3.jpg')),
@@ -482,7 +482,7 @@ class _EventPageState extends State<EventPage> {
                                   top: Constants.DIMEN_PRIMARY_MARGIN / 2),
                               child: Text(
                                 hasImage3
-                                    ? '${widget.event.picture.ptxPictureList[2].description}'
+                                    ? '${widget.event.picture.tdxPictureList[2].description}'
                                     : '',
                                 style: TextStyle(
                                   fontSize: 14,

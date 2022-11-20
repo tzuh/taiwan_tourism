@@ -1,7 +1,7 @@
 import 'dart:ui';
 
 class Constants {
-  /// City identifications (also for PTX HTTP)
+  /// City identifications (also for TDX HTTP)
   static const String TAIPEI = 'Taipei'; // 臺北市
   static const String NEW_TAIPEI = 'NewTaipei'; // 新北市
   static const String TAOYUAN = 'Taoyuan'; // 桃園市
@@ -111,7 +111,7 @@ class Constants {
   static const String WEATHER_ELEMENT_TYPE_POP_12H = 'PoP12h'; // 降雨機率 (%)
 
   /// Source types
-  static const String SOURCE_PTX = 'PTX';
+  static const String SOURCE_TDX = 'PTX'; // TDX整合的是PTX的資料服務
   static const String SOURCE_CWB_DIST_12H = 'CWB_DIST_12H';
 
   /// Event status
@@ -121,6 +121,8 @@ class Constants {
   /// Formats
   static const String EXPRESSION_PTX_HTTP = 'EEE, dd MMM yyyy HH:mm:ss GMT';
   static const String EXPRESSION_PTX_DATA = 'yyyy-MM-ddTHH:mm:ss';
+  static const String EXPRESSION_TDX_HTTP = 'EEE, dd MMM yyyy HH:mm:ss GMT';
+  static const String EXPRESSION_TDX_DATA = 'yyyy-MM-ddTHH:mm:ss';
   static const String EXPRESSION_CWB_DATA = 'yyyy-MM-dd HH:mm:ss';
   static const String EXPRESSION_ISO8601 = 'yyyy-MM-ddTHH:mm:ss+HH:mm';
   static const String EXPRESSION_ISO8601_UTC = 'yyyy-MM-ddTHH:mm:ss.mmmuuuZ';
@@ -145,6 +147,7 @@ class Constants {
 
   /// Links
   static const String LINK_PTX = 'https://ptx.transportdata.tw/PTX/';
+  static const String LINK_TDX = 'https://tdx.transportdata.tw/';
 
   /// Preference defaults
   static const bool PREF_DEF_SHOW_EXPIRED_EVENTS = false; // 顯示過期的活動
@@ -159,15 +162,18 @@ class Constants {
   static const int HTTP_STATUS_CODE_SEVER_ERROR = 500;
 
   /// PTX HTTP
-  static const String PTX_RESPONSE_HEADER_LAST_MODIFIED = 'last-modified';
-  static const int PTX_STATUS_CODE_IS_UP_TO_DATE = 304;
-  static const int PTX_STATUS_CODE_UNAUTHORIZED = 401; // 未帶簽章，未經授權
-  static const int PTX_STATUS_CODE_SIGNATURE_ERROR = 403; // 簽章錯誤
-  static const int PTX_STATUS_CODE_CONNECTION_EXCEEDED =
-      416; // 超過最大平行連接數（每個IP發60個連接）
-  static const int PTX_STATUS_CODE_REQUEST_EXCEEDED =
-      423; // 超過單位時間請求數（50 request/秒）
-  static const int PTX_STATUS_CODE_API_RATE_EXCEEDED = 429; // 超過當日呼叫上限次數
+  // static const String PTX_RESPONSE_HEADER_LAST_MODIFIED = 'last-modified';
+  // static const int PTX_STATUS_CODE_IS_UP_TO_DATE = 304;
+  // static const int PTX_STATUS_CODE_UNAUTHORIZED = 401; // 未帶簽章，未經授權
+  // static const int PTX_STATUS_CODE_SIGNATURE_ERROR = 403; // 簽章錯誤
+  // static const int PTX_STATUS_CODE_CONNECTION_EXCEEDED = 416; // 超過最大平行連接數（每個IP發60個連接）
+  // static const int PTX_STATUS_CODE_REQUEST_EXCEEDED = 423; // 超過單位時間請求數（50 request/秒）
+  // static const int PTX_STATUS_CODE_API_RATE_EXCEEDED = 429; // 超過當日呼叫上限次數
+
+  /// TDX HTTP
+  static const String TDX_RESPONSE_HEADER_LAST_MODIFIED = 'last-modified';
+  static const int TDX_STATUS_CODE_IS_UP_TO_DATE = 304;
+  static const int TDX_STATUS_CODE_UNAUTHORIZED = 401; // 簽章錯誤
 
   /// Strings for displaying
   static const String STRING_EVENT = '活動公告';

@@ -34,7 +34,7 @@ class DatabaseHelper {
   static const String COLUMN_REMARKS = "remarks";
   static const String COLUMN_CITY_ID = "city_id";
   static const String COLUMN_SRC_UPDATE_TIME = "src_update_time";
-  static const String COLUMN_PTX_UPDATE_TIME = "ptx_update_time";
+  static const String COLUMN_TDX_UPDATE_TIME = "ptx_update_time"; // TDX整合的是PTX的資料服務
   static const String COLUMN_SRC_TYPE = "src_type";
   static const String COLUMN_STATUS = "status";
   static const String COLUMN_URL = "url";
@@ -86,7 +86,7 @@ class DatabaseHelper {
           '$COLUMN_REMARKS TEXT,'
           '$COLUMN_CITY_ID TEXT,'
           '$COLUMN_SRC_UPDATE_TIME TEXT,'
-          '$COLUMN_PTX_UPDATE_TIME TEXT,'
+          '$COLUMN_TDX_UPDATE_TIME TEXT,'
           '$COLUMN_STATUS INTEGER)');
       database.execute('CREATE TABLE $TABLE_PICTURE ('
           '$COLUMN_ID INTEGER PRIMARY KEY,'
@@ -166,7 +166,7 @@ class DatabaseHelper {
           COLUMN_REMARKS,
           COLUMN_CITY_ID,
           COLUMN_SRC_UPDATE_TIME,
-          COLUMN_PTX_UPDATE_TIME,
+          COLUMN_TDX_UPDATE_TIME,
           COLUMN_STATUS,
         ],
         where: cityId.isEmpty
@@ -221,12 +221,12 @@ class DatabaseHelper {
     Map<String, dynamic> mappedEvent = newEvent.toMap();
     // Update pictures
     bool allUrlMatched = false;
-    if (newEvent.picture.ptxPictureList.length ==
-        oldEvent.picture.ptxPictureList.length) {
+    if (newEvent.picture.tdxPictureList.length ==
+        oldEvent.picture.tdxPictureList.length) {
       allUrlMatched = true;
-      for (int i = 0; i < newEvent.picture.ptxPictureList.length; i++) {
-        if (newEvent.picture.ptxPictureList[i].url !=
-            oldEvent.picture.ptxPictureList[i].url) {
+      for (int i = 0; i < newEvent.picture.tdxPictureList.length; i++) {
+        if (newEvent.picture.tdxPictureList[i].url !=
+            oldEvent.picture.tdxPictureList[i].url) {
           allUrlMatched = false;
           break;
         }
