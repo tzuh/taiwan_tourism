@@ -1,6 +1,6 @@
 import 'package:intl/intl.dart';
 import 'package:taiwantourism/helper/database_helper.dart';
-import 'package:taiwantourism/model/ptx/ptx_activity_tourism_info.dart';
+import 'package:taiwantourism/model/tdx/tdx_activity_tourism_info.dart';
 import '../constants.dart';
 
 class EventModel {
@@ -62,7 +62,7 @@ class EventModel {
     required this.srcUpdateTime,
   });
 
-  factory EventModel.fromPtx(PtxActivityTourismInfo ptx) {
+  factory EventModel.fromTdx(TdxActivityTourismInfo tdx) {
     bool isEnglish(String str) {
       final validChars = RegExp(r'^[a-zA-Z0-9_\-=@,\.; ]+$');
       return validChars.hasMatch(str);
@@ -134,10 +134,10 @@ class EventModel {
 
     /// 開始與結束時間的校正：
     /// 在不受時區影響的狀態下，以台灣承辦人員的認知角度轉換成正確資料邏輯，最後再轉成UTC儲存。
-    DateTime twStartTime = new DateFormat(Constants.EXPRESSION_PTX_DATA)
-        .parse(fixString(ptx.startTime), true);
-    DateTime twEndTime = new DateFormat(Constants.EXPRESSION_PTX_DATA)
-        .parse(fixString(ptx.endTime), true);
+    DateTime twStartTime = new DateFormat(Constants.EXPRESSION_TDX_DATA)
+        .parse(fixString(tdx.startTime), true);
+    DateTime twEndTime = new DateFormat(Constants.EXPRESSION_TDX_DATA)
+        .parse(fixString(tdx.endTime), true);
     DateTime fixedTwStartTime;
     DateTime fixedTwEndTime;
     var duration = twEndTime.difference(twStartTime).inSeconds;
@@ -186,57 +186,57 @@ class EventModel {
       fixedTwEndTime = twEndTime;
     }
 
-    var pictureUrl1 = fixUrl(fixString(ptx.picture!.pictureUrl1));
-    var pictureDescription1 = fixString(ptx.picture!.pictureDescription1);
-    var pictureUrl2 = fixUrl(fixString(ptx.picture!.pictureUrl2));
-    var pictureDescription2 = fixString(ptx.picture!.pictureDescription2);
-    var pictureUrl3 = fixUrl(fixString(ptx.picture!.pictureUrl3));
-    var pictureDescription3 = fixString(ptx.picture!.pictureDescription3);
-    List<PtxPicture> ptxPictureList = <PtxPicture>[];
+    var pictureUrl1 = fixUrl(fixString(tdx.picture!.pictureUrl1));
+    var pictureDescription1 = fixString(tdx.picture!.pictureDescription1);
+    var pictureUrl2 = fixUrl(fixString(tdx.picture!.pictureUrl2));
+    var pictureDescription2 = fixString(tdx.picture!.pictureDescription2);
+    var pictureUrl3 = fixUrl(fixString(tdx.picture!.pictureUrl3));
+    var pictureDescription3 = fixString(tdx.picture!.pictureDescription3);
+    List<TdxPicture> tdxPictureList = <TdxPicture>[];
     if (pictureUrl1.isNotEmpty || pictureDescription1.isNotEmpty) {
-      ptxPictureList.add(PtxPicture(pictureUrl1, pictureDescription1));
+      tdxPictureList.add(TdxPicture(pictureUrl1, pictureDescription1));
     }
     if (pictureUrl2.isNotEmpty || pictureDescription2.isNotEmpty) {
-      ptxPictureList.add(PtxPicture(pictureUrl2, pictureDescription2));
+      tdxPictureList.add(TdxPicture(pictureUrl2, pictureDescription2));
     }
     if (pictureUrl3.isNotEmpty || pictureDescription3.isNotEmpty) {
-      ptxPictureList.add(PtxPicture(pictureUrl3, pictureDescription3));
+      tdxPictureList.add(TdxPicture(pictureUrl3, pictureDescription3));
     }
 
     return EventModel(
-      srcType: Constants.SOURCE_PTX,
-      srcId: fixString(ptx.id),
-      name: fixString(ptx.name),
-      description: fixString(ptx.description),
-      participation: fixString(ptx.participation),
-      location: fixLocation(fixString(ptx.location)),
-      address: fixAddress(fixString(ptx.address)),
-      phone: fixPhoneNumber(fixString(ptx.phone)),
-      organizer: fixString(ptx.organizer),
+      srcType: Constants.SOURCE_TDX,
+      srcId: fixString(tdx.id),
+      name: fixString(tdx.name),
+      description: fixString(tdx.description),
+      participation: fixString(tdx.participation),
+      location: fixLocation(fixString(tdx.location)),
+      address: fixAddress(fixString(tdx.address)),
+      phone: fixPhoneNumber(fixString(tdx.phone)),
+      organizer: fixString(tdx.organizer),
       startTime: fixedTwStartTime.add(Duration(hours: -8)),
       endTime: fixedTwEndTime.add(Duration(hours: -8)),
-      cycle: fixString(ptx.cycle),
-      nonCycle: fixString(ptx.nonCycle),
-      websiteUrl: fixString(ptx.websiteUrl),
-      picture: new TourismPicture(ptxPictureList),
+      cycle: fixString(tdx.cycle),
+      nonCycle: fixString(tdx.nonCycle),
+      websiteUrl: fixString(tdx.websiteUrl),
+      picture: new TourismPicture(tdxPictureList),
       position: new PointType(
-        positionLon: ptx.position!.positionLon ?? 0,
-        positionLat: ptx.position!.positionLat ?? 0,
-        geoHash: fixString(ptx.position!.geoHash),
+        positionLon: tdx.position!.positionLon ?? 0,
+        positionLat: tdx.position!.positionLat ?? 0,
+        geoHash: fixString(tdx.position!.geoHash),
       ),
-      class1: fixString(ptx.class1),
-      class2: fixString(ptx.class2),
-      mapUrl: fixString(ptx.mapUrl),
-      travelInfo: fixString(ptx.travelInfo),
-      parkingInfo: fixString(ptx.parkingInfo),
-      charge: fixString(ptx.charge),
-      remarks: fixString(ptx.remarks),
-      cityId: fixCity(fixString(ptx.city)),
-      originalUpdateTime: new DateFormat(Constants.EXPRESSION_PTX_DATA)
-          .parse(fixString(ptx.srcUpdateTime), true)
+      class1: fixString(tdx.class1),
+      class2: fixString(tdx.class2),
+      mapUrl: fixString(tdx.mapUrl),
+      travelInfo: fixString(tdx.travelInfo),
+      parkingInfo: fixString(tdx.parkingInfo),
+      charge: fixString(tdx.charge),
+      remarks: fixString(tdx.remarks),
+      cityId: fixCity(fixString(tdx.city)),
+      originalUpdateTime: new DateFormat(Constants.EXPRESSION_TDX_DATA)
+          .parse(fixString(tdx.srcUpdateTime), true)
           .add(Duration(hours: -8)),
-      srcUpdateTime: new DateFormat(Constants.EXPRESSION_PTX_DATA)
-          .parse(fixString(ptx.updateTime), true)
+      srcUpdateTime: new DateFormat(Constants.EXPRESSION_TDX_DATA)
+          .parse(fixString(tdx.updateTime), true)
           .add(Duration(hours: -8)),
     );
   }
@@ -270,7 +270,7 @@ class EventModel {
       DatabaseHelper.COLUMN_CITY_ID: cityId,
       DatabaseHelper.COLUMN_SRC_UPDATE_TIME:
           originalUpdateTime.toIso8601String(),
-      DatabaseHelper.COLUMN_PTX_UPDATE_TIME: srcUpdateTime.toIso8601String(),
+      DatabaseHelper.COLUMN_TDX_UPDATE_TIME: srcUpdateTime.toIso8601String(),
       DatabaseHelper.COLUMN_STATUS: status,
     };
     if (dbId >= 0) {
@@ -295,7 +295,7 @@ class EventModel {
     cycle = map[DatabaseHelper.COLUMN_CYCLE];
     nonCycle = map[DatabaseHelper.COLUMN_NON_CYCLE];
     websiteUrl = map[DatabaseHelper.COLUMN_WEBSITE_URL];
-    picture = TourismPicture(<PtxPicture>[]);
+    picture = TourismPicture(<TdxPicture>[]);
     position = PointType(
         positionLon: map[DatabaseHelper.COLUMN_POSITION_LON],
         positionLat: map[DatabaseHelper.COLUMN_POSITION_LAT],
@@ -310,27 +310,27 @@ class EventModel {
     cityId = map[DatabaseHelper.COLUMN_CITY_ID];
     originalUpdateTime =
         DateTime.parse(map[DatabaseHelper.COLUMN_SRC_UPDATE_TIME]);
-    srcUpdateTime = DateTime.parse(map[DatabaseHelper.COLUMN_PTX_UPDATE_TIME]);
+    srcUpdateTime = DateTime.parse(map[DatabaseHelper.COLUMN_TDX_UPDATE_TIME]);
     status = map[DatabaseHelper.COLUMN_STATUS];
   }
 }
 
 class TourismPicture {
-  List<PtxPicture> ptxPictureList = <PtxPicture>[];
+  List<TdxPicture> tdxPictureList = <TdxPicture>[];
 
   TourismPicture(
-    this.ptxPictureList,
+    this.tdxPictureList,
   );
 
   List<Map<String, dynamic>> toMapList(String srcType, String srcId) {
     List<Map<String, dynamic>> mapList = <Map<String, dynamic>>[];
-    for (int i = 0; i < ptxPictureList.length; i++) {
+    for (int i = 0; i < tdxPictureList.length; i++) {
       var map = <String, dynamic>{
         DatabaseHelper.COLUMN_SRC_TYPE: srcType,
         DatabaseHelper.COLUMN_SRC_ID: srcId,
         DatabaseHelper.COLUMN_NUMBER: i + 1,
-        DatabaseHelper.COLUMN_URL: ptxPictureList[i].url,
-        DatabaseHelper.COLUMN_DESCRIPTION: ptxPictureList[i].description,
+        DatabaseHelper.COLUMN_URL: tdxPictureList[i].url,
+        DatabaseHelper.COLUMN_DESCRIPTION: tdxPictureList[i].description,
       };
       mapList.add(map);
     }
@@ -339,19 +339,19 @@ class TourismPicture {
 
   TourismPicture.fromMapList(List<Map<String, dynamic>> mapList) {
     mapList.forEach((map) {
-      if (map[DatabaseHelper.COLUMN_SRC_TYPE] == Constants.SOURCE_PTX) {
-        ptxPictureList.add(PtxPicture(map[DatabaseHelper.COLUMN_URL],
+      if (map[DatabaseHelper.COLUMN_SRC_TYPE] == Constants.SOURCE_TDX) {
+        tdxPictureList.add(TdxPicture(map[DatabaseHelper.COLUMN_URL],
             map[DatabaseHelper.COLUMN_DESCRIPTION]));
       }
     });
   }
 }
 
-class PtxPicture {
+class TdxPicture {
   String url = '';
   String description = '';
 
-  PtxPicture(
+  TdxPicture(
     this.url,
     this.description,
   );

@@ -7,10 +7,11 @@ import 'package:taiwantourism/helper/preference_helper.dart';
 import 'package:taiwantourism/util/network_util.dart';
 import 'constants.dart';
 import 'helper/database_helper.dart';
-import 'helper/ptx_helper.dart';
+import 'helper/tdx_helper.dart';
 import 'home_page.dart';
 import 'model/event_model.dart';
-import 'model/ptx/ptx_activity_tourism_info.dart';
+import 'model/tdx/tdx_activity_tourism_info.dart';
+import 'model/tdx/tdx_token_info.dart';
 
 enum AlertStatus {
   NONE,
@@ -30,8 +31,8 @@ class _SelectionPageState extends State<SelectionPage> {
   late Directory _tempDir;
   var _autoRetry = true;
   var _selectedCity = '';
-  var _ptxLocalEventList = <EventModel>[];
-  var _ptxSeverEventList = <EventModel>[];
+  var _tdxLocalEventList = <EventModel>[];
+  var _tdxSeverEventList = <EventModel>[];
   var _cityCountList = Map<String, int>();
   var _cityHighlightList = <String>[];
   var _alertStatus = AlertStatus.NONE;
@@ -42,7 +43,7 @@ class _SelectionPageState extends State<SelectionPage> {
   StateSetter? _setProgressDialogState;
   double _progress = -1.0;
   String _progressMessage = Constants.STRING_CHECKING_DATA;
-  String _ptxLastModifiedTime = '';
+  String _tdxLastModifiedTime = '';
 
   @override
   void initState() {
@@ -243,29 +244,29 @@ class _SelectionPageState extends State<SelectionPage> {
     NetworkUtil.isAvailable().then((isOnline) {
       if (isOnline) {
         getEventsFromDatabase().then((_) {
-          print('Number of PTX local events: ${_ptxLocalEventList.length}');
-          PtxHelper.getPtxEvents(300).then((response) {
-            print('PTX status code: ${response.statusCode}');
+          print('Number of TDX local events: ${_tdxLocalEventList.length}');
+          TdxHelper.getTdxEvents(300).then((response) {
+            print('TDX status code: ${response.statusCode}');
             if (response.statusCode == Constants.HTTP_STATUS_CODE_OK) {
-              _ptxLastModifiedTime = response
-                      .headers[Constants.PTX_RESPONSE_HEADER_LAST_MODIFIED] ??
+              _tdxLastModifiedTime = response
+                      .headers[Constants.TDX_RESPONSE_HEADER_LAST_MODIFIED] ??
                   '';
               _progressMessage = Constants.STRING_UPDATING_DATA;
               if (_setProgressDialogState != null) {
                 _setProgressDialogState!(() => _progress = 0.0);
               }
               // Parse data
-              List<PtxActivityTourismInfo> list =
-                  List<PtxActivityTourismInfo>.from(json
+              List<TdxActivityTourismInfo> list =
+                  List<TdxActivityTourismInfo>.from(json
                       .decode(response.body)
-                      .map((s) => PtxActivityTourismInfo.fromJson(s)));
+                      .map((s) => TdxActivityTourismInfo.fromJson(s)));
               // Prepare sever data and remove useless data
-              List<EventModel> ptxRawEventList = <EventModel>[];
+              List<EventModel> tdxRawEventList = <EventModel>[];
               var checkedList = Map<String, DateTime>();
-              list.forEach((ptx) {
-                var event = EventModel.fromPtx(ptx);
+              list.forEach((tdx) {
+                var event = EventModel.fromTdx(tdx);
                 if (event.cityId.isNotEmpty) {
-                  ptxRawEventList.add(event);
+                  tdxRawEventList.add(event);
                   if (checkedList.containsKey(event.srcId)) {
                     if (checkedList[event.srcId]!
                         .isBefore(event.srcUpdateTime)) {
@@ -276,16 +277,16 @@ class _SelectionPageState extends State<SelectionPage> {
                   }
                 }
               });
-              _ptxSeverEventList.clear();
-              ptxRawEventList.forEach((event) {
+              _tdxSeverEventList.clear();
+              tdxRawEventList.forEach((event) {
                 if (checkedList[event.srcId]!
                     .isAtSameMomentAs(event.srcUpdateTime)) {
-                  _ptxSeverEventList.add(event);
+                  _tdxSeverEventList.add(event);
                 }
               });
               checkedList.clear();
-              ptxRawEventList.clear();
-              print('Number of PTX sever events: ${_ptxSeverEventList.length}');
+              tdxRawEventList.clear();
+              print('Number of TDX sever events: ${_tdxSeverEventList.length}');
               // Update database
               updateDatabase().then((activeIdList) {
                 if (_setProgressDialogState != null) {
@@ -299,12 +300,12 @@ class _SelectionPageState extends State<SelectionPage> {
                   // Load events from database again
                   getEventsFromDatabase().then((_) {
                     print(
-                        'Number of PTX local events: ${_ptxLocalEventList.length}');
+                        'Number of TDX local events: ${_tdxLocalEventList.length}');
                     if (_setProgressDialogState != null) {
                       _setProgressDialogState!(() => _progress = 1.0);
                     }
-                    PreferenceHelper.setPtxLastModifiedTime(
-                        _ptxLastModifiedTime);
+                    PreferenceHelper.setTdxLastModifiedTime(
+                        _tdxLastModifiedTime);
                     _autoRetry = false;
                     prepareCityLabels();
                     Navigator.pop(context);
@@ -313,21 +314,44 @@ class _SelectionPageState extends State<SelectionPage> {
                 });
               });
             } else if (response.statusCode ==
-                Constants.PTX_STATUS_CODE_IS_UP_TO_DATE) {
+                Constants.TDX_STATUS_CODE_IS_UP_TO_DATE) {
               // Load events from database
               getEventsFromDatabase().then((_) {
                 print(
-                    'Number of PTX local events: ${_ptxLocalEventList.length}');
+                    'Number of TDX local events: ${_tdxLocalEventList.length}');
                 _autoRetry = false;
                 prepareCityLabels();
                 Navigator.pop(context);
                 setState(() {});
               });
+            } else if (response.statusCode ==
+                Constants.TDX_STATUS_CODE_UNAUTHORIZED) {
+              print('getAccessToken');
+              TdxHelper.getAccessToken().then((response) {
+                print('TDX status code: ${response.statusCode}');
+                if (response.statusCode == Constants.HTTP_STATUS_CODE_OK) {
+                  // Parse data
+                  TdxTokenInfo tokenInfo =
+                      TdxTokenInfo.fromJson(jsonDecode(response.body));
+                  PreferenceHelper.setTdxAccessToken(tokenInfo.accessToken!);
+                  prepareData();
+                } else {
+                  // Load events from database
+                  getEventsFromDatabase().then((_) {
+                    print(
+                        'Number of TDX local events: ${_tdxLocalEventList.length}');
+                    _autoRetry = false;
+                    prepareCityLabels();
+                    Navigator.pop(context);
+                    setState(() => _alertStatus = AlertStatus.SEVER_ERROR);
+                  });
+                }
+              });
             } else {
               // Load events from database
               getEventsFromDatabase().then((_) {
                 print(
-                    'Number of PTX local events: ${_ptxLocalEventList.length}');
+                    'Number of TDX local events: ${_tdxLocalEventList.length}');
                 _autoRetry = false;
                 prepareCityLabels();
                 Navigator.pop(context);
@@ -339,7 +363,7 @@ class _SelectionPageState extends State<SelectionPage> {
       } else {
         // Load events from database
         getEventsFromDatabase().then((_) {
-          print('Number of PTX local events: ${_ptxLocalEventList.length}');
+          print('Number of TDX local events: ${_tdxLocalEventList.length}');
           prepareCityLabels();
           Navigator.pop(context);
           setState(() => _alertStatus = AlertStatus.IS_OFFLINE);
@@ -349,49 +373,49 @@ class _SelectionPageState extends State<SelectionPage> {
   }
 
   Future<void> getEventsFromDatabase() async {
-    _ptxLocalEventList.clear();
-    _ptxLocalEventList =
-        await DatabaseHelper.dh.getAllEvents(Constants.SOURCE_PTX);
+    _tdxLocalEventList.clear();
+    _tdxLocalEventList =
+        await DatabaseHelper.dh.getAllEvents(Constants.SOURCE_TDX);
   }
 
   Future<List<String>> updateDatabase() async {
     var activeIdList = <String>[];
     var counter = 0;
     var utcNow = DateTime.now().toUtc();
-    for (var ptxSeverEvent in _ptxSeverEventList) {
-      activeIdList.add(ptxSeverEvent.srcId);
+    for (var tdxSeverEvent in _tdxSeverEventList) {
+      activeIdList.add(tdxSeverEvent.srcId);
       bool foundMatching = false;
-      for (var ptxLocalEvent in _ptxLocalEventList) {
-        if (ptxSeverEvent.srcId == ptxLocalEvent.srcId) {
+      for (var tdxLocalEvent in _tdxLocalEventList) {
+        if (tdxSeverEvent.srcId == tdxLocalEvent.srcId) {
           foundMatching = true;
-          if (ptxSeverEvent.srcUpdateTime
-              .isAfter(ptxLocalEvent.srcUpdateTime)) {
-            if (ptxSeverEvent.endTime.isAfter(utcNow)) {
-              ptxSeverEvent.status = ptxLocalEvent.status;
+          if (tdxSeverEvent.srcUpdateTime
+              .isAfter(tdxLocalEvent.srcUpdateTime)) {
+            if (tdxSeverEvent.endTime.isAfter(utcNow)) {
+              tdxSeverEvent.status = tdxLocalEvent.status;
             } else {
-              ptxSeverEvent.status = Constants.EVENT_STATUS_NONE;
+              tdxSeverEvent.status = Constants.EVENT_STATUS_NONE;
             }
             await DatabaseHelper.dh
-                .updateEvent(ptxSeverEvent, ptxLocalEvent, _tempDir);
-          } else if (ptxLocalEvent.status == Constants.EVENT_STATUS_NEW &&
-              ptxLocalEvent.endTime.isBefore(utcNow)) {
-            ptxLocalEvent.status = Constants.EVENT_STATUS_NONE;
+                .updateEvent(tdxSeverEvent, tdxLocalEvent, _tempDir);
+          } else if (tdxLocalEvent.status == Constants.EVENT_STATUS_NEW &&
+              tdxLocalEvent.endTime.isBefore(utcNow)) {
+            tdxLocalEvent.status = Constants.EVENT_STATUS_NONE;
             await DatabaseHelper.dh
-                .updateEvent(ptxLocalEvent, ptxLocalEvent, _tempDir);
+                .updateEvent(tdxLocalEvent, tdxLocalEvent, _tempDir);
           }
           break;
         }
       }
       if (!foundMatching) {
-        if (ptxSeverEvent.endTime.isAfter(utcNow) &&
-            _ptxLocalEventList.length > 0) {
-          ptxSeverEvent.status = Constants.EVENT_STATUS_NEW;
+        if (tdxSeverEvent.endTime.isAfter(utcNow) &&
+            _tdxLocalEventList.length > 0) {
+          tdxSeverEvent.status = Constants.EVENT_STATUS_NEW;
         }
-        await DatabaseHelper.dh.insertEvent(ptxSeverEvent);
+        await DatabaseHelper.dh.insertEvent(tdxSeverEvent);
       }
       if (_setProgressDialogState != null) {
         _setProgressDialogState!(
-            () => _progress = counter * 0.5 / _ptxSeverEventList.length);
+            () => _progress = counter * 0.5 / _tdxSeverEventList.length);
       }
       counter++;
     }
@@ -399,10 +423,10 @@ class _SelectionPageState extends State<SelectionPage> {
   }
 
   Future<void> deleteOldEventsFromDatabase(List<String> activeIdList) async {
-    for (var ptxLocalEvent in _ptxLocalEventList) {
-      if (!activeIdList.contains(ptxLocalEvent.srcId)) {
+    for (var tdxLocalEvent in _tdxLocalEventList) {
+      if (!activeIdList.contains(tdxLocalEvent.srcId)) {
         DatabaseHelper.dh
-            .deleteEvent(ptxLocalEvent.srcType, ptxLocalEvent.srcId, _tempDir);
+            .deleteEvent(tdxLocalEvent.srcType, tdxLocalEvent.srcId, _tempDir);
       }
     }
   }
@@ -411,7 +435,7 @@ class _SelectionPageState extends State<SelectionPage> {
     var utcNow = DateTime.now().toUtc();
     _cityCountList.clear();
     _cityHighlightList.clear();
-    _ptxLocalEventList.forEach((event) {
+    _tdxLocalEventList.forEach((event) {
       if (event.endTime.isAfter(utcNow)) {
         int count = _cityCountList[event.cityId] ?? 0;
         _cityCountList[event.cityId] = count + 1;

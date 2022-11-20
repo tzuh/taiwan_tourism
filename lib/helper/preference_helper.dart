@@ -3,6 +3,8 @@ import 'package:taiwantourism/constants.dart';
 
 class PreferenceHelper {
   static const String KEY_PTX_LAST_MODIFIED_TIME = 'ptx_last_modified_time';
+  static const String KEY_TDX_LAST_MODIFIED_TIME = 'tdx_last_modified_time';
+  static const String KEY_TDX_ACCESS_TOKEN = 'tdx_access_token';
   static const String KEY_SHOW_EXPIRED_EVENTS = 'show_expired_events';
   static const String KEY_EVENT_SORT_BY = 'event_sort_by';
 
@@ -18,6 +20,26 @@ class PreferenceHelper {
   static Future<void> setPtxLastModifiedTime(String value) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     prefs.setString(KEY_PTX_LAST_MODIFIED_TIME, value);
+  }
+
+  static Future<String> getTdxLastModifiedTime() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    return prefs.getString(KEY_TDX_LAST_MODIFIED_TIME) ?? '';
+  }
+
+  static Future<void> setTdxLastModifiedTime(String value) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    prefs.setString(KEY_TDX_LAST_MODIFIED_TIME, value);
+  }
+
+  static Future<String> getTdxAccessToken() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    return prefs.getString(KEY_TDX_ACCESS_TOKEN) ?? '';
+  }
+
+  static Future<void> setTdxAccessToken(String value) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    prefs.setString(KEY_TDX_ACCESS_TOKEN, value);
   }
 
   static Future<bool> getShowExpiredEvents() async {
