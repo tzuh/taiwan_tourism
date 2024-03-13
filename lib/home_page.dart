@@ -68,6 +68,7 @@ class _HomePageState extends State<HomePage> {
     return Scaffold(
       backgroundColor: Constants.COLOR_THEME_DARK_WHITE,
       appBar: AppBar(
+        backgroundColor: Colors.blueGrey,
         elevation: 0,
         centerTitle: true,
         automaticallyImplyLeading: false,

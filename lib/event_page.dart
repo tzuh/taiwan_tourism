@@ -55,6 +55,7 @@ class _EventPageState extends State<EventPage> {
     return Scaffold(
         backgroundColor: Constants.COLOR_THEME_DARK_WHITE,
         appBar: AppBar(
+          backgroundColor: Colors.blueGrey,
           elevation: 0,
           actions: <Widget>[],
           centerTitle: true,

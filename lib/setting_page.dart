@@ -36,6 +36,7 @@ class _SettingPageState extends State<SettingPage> {
     return Scaffold(
       backgroundColor: Constants.COLOR_THEME_DARK_WHITE,
       appBar: AppBar(
+        backgroundColor: Colors.blueGrey,
         centerTitle: true,
         automaticallyImplyLeading: false,
         leading: Navigator.canPop(context)
