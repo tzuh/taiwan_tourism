@@ -49,7 +49,9 @@ class _SettingPageState extends State<SettingPage> {
                 onPressed: () => Navigator.of(context).pop(),
               )
             : null,
-        title: Text(Constants.STRING_SETTINGS),
+        title: Text(Constants.STRING_SETTINGS,
+          style: TextStyle(fontSize: 20, color: Constants.COLOR_THEME_WHITE),
+          textAlign: TextAlign.center,),
         elevation: 0,
       ),
       body: Container(
