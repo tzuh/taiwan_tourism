@@ -19,7 +19,7 @@ class CwbHelper {
         _codec(envK.substring(20, 24), k.substring(16, 20)) +
         '-' +
         _codec(envK.substring(24, 36), k.substring(20, 32));
-    String uri = 'https://opendata.cwb.gov.tw/api/v1/rest/datastore/' +
+    String uri = 'https://opendata.cwa.gov.tw/api/v1/rest/datastore/' +
         (Constants.CWB_API_ID_1WEEK[city] ?? '') +
         '?format=JSON&elementName=' +
         Constants.WEATHER_ELEMENT_TYPE_WX +
